@@ -53,53 +53,6 @@ return $str;
 </style>
 
 <script type="text/javascript">
-  function save_fix(){
-
-    if($("#product").val()!=""){
-    var data = "&dateday="+$("#dateday").val();
-        data = data + "&times="+$("#times").val();
-        data = data + "&department="+$("#department").val();
-        data = data + "&product="+$("#product").val();
-        data = data + "&model="+$("#model").val();
-        data = data + "&serial="+$("#serial").val();
-        data = data + "&no="+$("#no").val();
-        data = data + "&type="+$("#type").val();
-        data = data + "&other="+$("#other").val();
-        data = data + "&officer="+$("#officer").val();
-        data = data + "&date_recipt="+$("#date_recipt").val();
-        data = data + "&time_recipt="+$("#time_recipt").val();
-        data = data + "&other_fix="+$("#other_fix").val();
-        data = data + "&officer_recipt="+$("#officer_recipt").val();
-        data = data + "&type_fix="+$("#type_fix").val();
-        data = data + "&group_fix="+$("#group_fix").val();
-        data = data + "&datefix="+$("#datefix").val();
-        data = data + "&type_status_fix="+$("#type_status_fix").val();
-        
-    $.ajax({
-      type: "POST",
-      url: "mysql_fix.php",
-      data: "submit=save_fix"+data ,
-      cache: false,
-      success: function(result)
-        {
-          //alert(result);
-                var obj = jQuery.parseJSON(result);      
-                $.each(obj, function(key, val) {
-                  if(val["status"]=="true"){
-                    alert(val["msg"]);
-                    window.location='../display_index.php';
-                  }else{
-                    alert(val["msg"]);
-                  }
-                });
-        }
-      });
-  }else{
-    alert("กรุณาใส่ข้อมูลอุปกรณ์ที่ส่งซ่อม");
-    $("#product").focus();
-  }
-}
-
 function return_data(id){
 
       $.ajax({
@@ -109,9 +62,7 @@ function return_data(id){
       cache: false,
       success: function(result)
         {
-          //alert(result);
-          $("#save1").hide();
-          $("#update1").show();
+
                 var obj = jQuery.parseJSON(result);      
                 $.each(obj, function(key, val) {
                     $("#dateday").val(val["date_convert"]);
@@ -134,119 +85,23 @@ function return_data(id){
                     if(val["type_fix"]){$("#type_fix").val(val["type_fix"]);}
                     if(val["group_fix"]){$("#group_fix").val(val["group_fix"]);}
                     if(val["type_status_fix"]){$("#type_status_fix").val(val["type_status_fix"]);}
+
                     $("#blah").append(val["blah"]);
                     $("#blah2").append(val["blah2"]);
-
-                    if(val["blah2"]){
-                      $("#fileupload").hide();
-                    }
+                    $("#blah3").append(val["blah3"]);            
                     dateFix(val["datefix"]);
+
+                    // $('input').css({'border':'0px solid #e0e0e0'});
+                    // $('select').css({'border':'0px solid #e0e0e0'});
+                    $('input').attr('readonly', true);
+                    $('select').attr('readonly', true);
+                    $('textarea').attr('readonly', true);
+                    
 
                 });
         }
       });
 }
-
-  function update_fix(){
-
-          var fd = new FormData();
-          var input = document.getElementById('fileupload');
-
-          for (var x = 0; x < input.files.length; x++) {
-            fd.append('fileupload['+x+']',input.files[x]);
-          }
-
-        fd.append('dateday',$("#dateday").val());
-        fd.append('times',$("#times").val());
-        fd.append('department',$("#department").val());
-        fd.append('product',$("#product").val());
-        fd.append('model',$("#model").val());
-        fd.append('serial',$("#serial").val());
-        fd.append('no',$("#no").val());
-        fd.append('type',$("#type").val());
-        fd.append('other',$("#other").val());
-        fd.append('officer',$("#officer").val());
-        fd.append('row_id',$("#row_id").val());
-        fd.append('date_recipt',$("#date_recipt").val());
-        fd.append('time_recipt',$("#time_recipt").val());
-        fd.append('other_fix',$("#other_fix").val());
-        fd.append('officer_recipt',$("#officer_recipt").val());
-        fd.append('type_fix',$("#type_fix").val());
-        fd.append('group_fix',$("#group_fix").val());
-        fd.append('datefix',$("#datefix").val());
-        fd.append('type_status_fix',$("#type_status_fix").val());
-        fd.append('submit','update_reciptfix');
-        $.ajax({
-            url: 'mysql_fix.php?',
-            type: 'post',
-            data: fd,
-            //cache: false,
-            contentType: false,
-            processData: false,
-            success: function(response){
-
-                 var obj = jQuery.parseJSON(response);      
-                $.each(obj, function(key, val) {
-                  if(val["status"]=="true"){
-                    alert(val["msg"]);
-                     window.location='hire_fix_print.php?row_id='+$("#row_id").val();
-
-                  }else{
-                    alert(val["msg"]);
-                  }
-                });
-            },
-        });
-
-}
-
-function save_return(){
-
-
-          var fd = new FormData();
-          var input = document.getElementById('filefixupload');
-
-          for (var x = 0; x < input.files.length; x++) {
-            fd.append('filefixupload['+x+']',input.files[x]);
-          }
-
-          fd.append('date_return',$("#date_return").val());
-        fd.append('type_status_return',$("#type_status_return").val());
-        fd.append('other_return',$("#other_return").val());
-        fd.append('officer_fix',$("#officer_fix").val());
-        fd.append('no',$("#no").val());
-        fd.append('nobill_recipt',$("#nobill_recipt").val());
-        fd.append('money_recipt',$("#money_recipt").val());
-        fd.append('row_id',$("#row_id").val());
-        fd.append('submit','update_return_fix');
-
-        $.ajax({
-            url: 'mysql_fix.php?',
-            type: 'post',
-            data: fd,
-            //cache: false,
-            contentType: false,
-            processData: false,
-            success: function(response){
-              alert(response);
-                 var obj = jQuery.parseJSON(response);      
-                $.each(obj, function(key, val) {
-                  if(val["status"]=="true"){
-                    alert(val["msg"]);
-                    window.open("hire_fix_report_show.php?row_id"+$("#row_id").val(),"_blank");
-                     window.location='hire_fix_report.php';
-
-
-                     //
-                  }else{
-                    alert(val["msg"]);
-                  }
-                });
-            },
-        });
-
-}
-
 
 function dateFix(str){
 
@@ -263,26 +118,6 @@ function dateFix(str){
 
 
 }
-
-function del_piture(){
-  var rd = $("#row_id").val();
-
-     $.ajax({
-      type: "POST",
-      url: "mysql_fix.php",
-      data: "submit=del_image_fixrecipt&row_id="+rd ,
-      cache: false,
-      success: function(result)
-        { 
-        
-          $("#blah2").html('');
-          $("#btn_del_img").hide();
-          $("#fileupload").show();
-        }
-      });
-
-}
-
 </script>
 
 </head>
@@ -366,11 +201,7 @@ function del_piture(){
         </tr>
 
           <tr>
-        <td>อัพรูปภาพ</td><td colspan="3"><input type="file" name="fileupload[]" id="fileupload"  style="font-size: 18px;" multiple="multiple"  onchange="imagespreview(this)"></td>
-      </tr>
-      <tr>
-        <td></td>
-        <td colspan="3">
+        <td>อัพรูปภาพ</td><td colspan="3">
           <div style="width:100%;height: 220px;border:1px solid #909090;overflow-y:scroll;background-color: #ffffff; " id="blah2">
 
       </div>
@@ -378,11 +209,9 @@ function del_piture(){
       </tr>
 
       <tr><td colspan="2">
-        <button id="update1" class="btn btn-info" onclick="update_fix()" style="display: none;">บันทึกรับแจ้งซ่อม</button>
-        <button id="save1" class="btn btn-info" onclick="save_fix()">บันทึกแจ้งซ่อม</button>
-        <button id="btn_del_img" class="btn btn-danger" onclick="del_piture()">ลบรูปภาพ</button>
 
-      </td><td colspan="2" style="text-align: right;"><button class="btn btn-danger" onclick="window.location='../display_index.php'">ปิด</button>
+
+      </td>
         <input type="hidden" id="row_id" value="<?PHP echo $_GET["row_id"];?>">
       </td></tr>
 
@@ -405,16 +234,12 @@ function del_piture(){
        <tr><td>เลขที่เอกสารแนบ</td><td><input type="text" id="nobill_recipt" class="form-control" value=""></td> 
        <td style="text-align: right;">ค่าซ่อมบำรุง</td><td><input type="text" id="money_recipt" class="form-control" value=""></td> 
       <tr>
-        <td>รูปภาพ</td><td><input type="file" name="filefixupload[]" id="filefixupload"  style="font-size: 18px;" multiple="multiple"  onchange="imagespreview3(this)"></td>
-      <tr>
-        <td></td><td colspan="3">
+        <td>รูปภาพ</td><td colspan="3">
           <div style="width:100%;height: 220px;border:1px solid #909090;overflow-y:scroll;background-color: #ffffff; " id="blah3"></div>
         </td>
 
        <tr><td>ผู้ดำเนินการ</td><td><input type="text" id="officer_fix" class="form-control" value="<?=$_SESSION['xfullname']?>"></td>
-      <tr><td colspan="2"><button id="save2" class="btn btn-success" onclick="save_return()">บันทึกสถานะงาน</button></td><td colspan="2" style="text-align: right;"><button class="btn btn-danger" onclick="window.location='../display_index.php'">ปิด</button>
 
-      </td></tr>
       <?}?>
   </table>
 
@@ -425,55 +250,7 @@ function del_piture(){
 <script src="../dashboard/bower_components/jquery/dist/jquery.min.js"></script>
 <!-- Bootstrap 3.3.7 -->
 <script src="../dashboard/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-<script type="text/javascript">
-             function imagespreview(input) {
-           // alert($('#blah').attr('src'));
-     for(i=0;i<input.files.length;i++){
 
-            if (input.files && input.files[i]) {
-                var reader = new FileReader();
-
-                reader.onload = function (e) {
-                  // $('#blah').attr('src', e.target.result);
-                   
-                    var img = $("<img />");
-                        img.attr("style", "width:120px;");
-                        img.attr("src", e.target.result);
-                        $("#blah2").append(img);
-                        $("#blah2").css({"background-color":"#ffffff"});
-                //  $("#blah").append("<img src='"+e.target.result+"' style='height:200px;'>");
-                };
-
-                reader.readAsDataURL(input.files[i]);
-            }
-          }
-        }
-
-
-    function imagespreview3(input) {
-           // alert($('#blah').attr('src'));
-     for(i=0;i<input.files.length;i++){
-
-            if (input.files && input.files[i]) {
-                var reader = new FileReader();
-
-                reader.onload = function (e) {
-                  // $('#blah').attr('src', e.target.result);
-                   
-                    var img = $("<img />");
-                        img.attr("style", "width:120px;");
-                        img.attr("src", e.target.result);
-                        $("#blah3").append(img);
-                        $("#blah3").css({"background-color":"#ffffff"});
-                //  $("#blah").append("<img src='"+e.target.result+"' style='height:200px;'>");
-                };
-
-                reader.readAsDataURL(input.files[i]);
-            }
-          }
-        }
-
-</script>
 <?
 if($_GET["row_id"]){
   echo("<script>return_data(".$_GET["row_id"].")</script>");

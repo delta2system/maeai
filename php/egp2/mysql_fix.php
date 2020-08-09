@@ -2,6 +2,13 @@
 session_start();
 include("../connect.inc");
 
+function expdate($startdate,$datenum){
+ $startdatec=strtotime($startdate); // ทำให้ข้อความเป็นวินาที
+ $tod=$datenum*86400; // รับจำนวนวันมาคูณกับวินาทีต่อวัน
+ $ndate=$startdatec+$tod; // นับบวกไปอีกตามจำนวนวันที่รับมา
+ return $ndate; // ส่งค่ากลับ
+}
+
 function convert_dateday($str){
   
 $sr=explode(" ",$str);
@@ -56,8 +63,37 @@ return $sb[2]." ".mount($sb[1])." ".$sb[0];
 
 if($_POST["submit"]=="save_fix"){
 
-$resultArray=array();
-$arrCol=array();
+$array_image="";
+if(isset($_FILES["fileupload"]))
+{
+    foreach($_FILES['fileupload']['tmp_name'] as $key => $val)
+    {
+
+            //$new_barcode = date("y").str_pad(($barcode_new+$i),6,"0",STR_PAD_LEFT);
+    $images = $_FILES["fileupload"]["tmp_name"][$key];
+    $new_images = date("ymdHis").$key.".jpg";
+    //copy($_FILES["product"]["tmp_name"],"../images/send_product/".$_FILES["product"]["name"]);
+    $width=640; //*** Fix Width & Heigh (Autu caculate) ***//
+    $size=GetimageSize($images);
+    $height=round($width*$size[1]/$size[0]);
+    $images_orig = ImageCreateFromJPEG($images);
+    $photoX = ImagesX($images_orig);
+    $photoY = ImagesY($images_orig);
+    $images_fin = ImageCreateTrueColor($width, $height);
+    ImageCopyResampled($images_fin, $images_orig, 0, 0, 0, 0, $width+1, $height+1, $photoX, $photoY);
+    ImageJPEG($images_fin,"../../images/fix/".$new_images);
+    //ImageDestroy($images_orig);
+    ImageDestroy($images_fin);
+    chmod("../../images/fix/".$new_images, 0777);
+
+    $array_image.="#".$new_images;
+    }
+    //echo "Copy/Upload Complete";
+}
+
+
+//$resultArray=array();
+//$arrCol=array();
 //INSERT SQL
 $strSQL = "INSERT INTO hirefix SET "; 
 $strSQL .="dateday = '".convert_dateday($_POST["dateday"])."' ";
@@ -69,23 +105,32 @@ $strSQL .=",serial = '".$_POST["serial"]."' ";
 $strSQL .=",no = '".$_POST["no"]."' ";
 $strSQL .=",type_fix = '".$_POST["type_fix"]."' ";
 $strSQL .=",type = '".$_POST["type"]."' ";
+$strSQL .=",datefix = '".$_POST["datefix"]."' ";
+if($array_image){
+  $strSQL .=",images = '".$array_image."' ";
+}
 $strSQL .=",other = '".$_POST["other"]."' ";
 $strSQL .=",officer = '".$_POST["officer"]."' ";
 $strSQL .=",userid = '".$_SESSION["xid"]."' ";
 $objQuery = mysql_query($strSQL);
 
+
 if($objQuery){
-	$arrCol["status"]="true";
-	$arrCol["msg"]="บันทึกใบแจ้งซ่อมเรียบร้อย...";
-}else{
-	$arrCol["status"]="error";
-	$arrCol["msg"]=mysql_error();
-}
+// 	$arrCol["status"]="true";
+// 	$arrCol["msg"]="บันทึกใบแจ้งซ่อมเรียบร้อย...";
+  echo "<div style='padding:100px;100px;text-align:center;width:600px;height:300px;position:fixed;top:50%;left:50%;margin-left:-300px;margin-top:-150px;font-size:40px;color:green;'>บันทึกใบแจ้งซ่อมเรียบร้อย...</div>";
+  echo "<Script Language='JavaScript'> function CloseWindowsInTime(t){t = t*1000;setTimeout(function(){ window.location='hire_fix.php';},t);}CloseWindowsInTime(3); </Script>";
+ }else{
+// 	$arrCol["status"]="error";
+// 	$arrCol["msg"]=mysql_error();
+    echo "<div style='padding:100px;100px;text-align:center;width:600px;height:300px;position:fixed;top:50%;left:50%;margin-left:-300px;margin-top:-150px;font-size:40px;color:red;'>ไม่สามารถบันทึกใบแจ้งซ่อมเรียบร้อย...</div>";
+  echo "<Script Language='JavaScript'> function CloseWindowsInTime(t){t = t*1000;setTimeout(function(){ window.history.back();},t);}CloseWindowsInTime(3); </Script>";
+ }
 
   
-  array_push($resultArray,$arrCol);
+//   array_push($resultArray,$arrCol);
   
-  echo json_encode($resultArray);
+//   echo json_encode($resultArray);
 
 
 
@@ -107,6 +152,44 @@ if($objQuery){
     if($obResult["date_recipt"]!="0000-00-00"){
     $arrCol["date_recipt_convert"]=convert_redatday($obResult["date_recipt"]);
     }
+
+      $arrCol["blah"]="";
+      $ims=explode("#",$arrCol["images"]);
+      if($arrCol["images"]){
+        if(count($ims)>0){
+          for ($r=1; $r < count($ims) ; $r++) { 
+
+            $arrCol["blah"].= "<img src=\"../../images/fix/$ims[$r]\" style=\"height:200px;cursor:pointer;\" onclick=\"window.open('../../images/fix/$ims[$r]','_blank')\">";
+          }
+        }else{
+          $arrCol["blah"].= "<img src=\"../../images/fix/".$arrCol["images"]." style=\"height:200px;cursor:pointer;\" onclick=\"window.open('../images/store/".$arrCol["images"]."','_blank')\">";
+        }
+      }
+
+      $arrCol["blah2"]="";
+       $ims=explode("#",$arrCol["images_recipt"]);
+      if($arrCol["images_recipt"]){
+        if(count($ims)>0){
+          for ($r=1; $r < count($ims) ; $r++) { 
+            $arrCol["blah2"].= "<img src=\"../../images/fix/$ims[$r]\" style=\"height:200px;cursor:pointer;\" onclick=\"window.open('../../images/fix/$ims[$r]','_blank')\">";
+          }
+        }else{
+          $arrCol["blah2"].= "<img src=\"../../images/fix/".$arrCol["images_recipt"]." style=\"height:200px;cursor:pointer;\" onclick=\"window.open('../../images/fix/$ims[$r]','_blank')\">";
+        }
+      }
+
+      $arrCol["blah3"]="";
+      $ims=explode("#",$arrCol["image_return"]);
+      if($arrCol["image_return"]){
+        if(count($ims)>0){
+          for ($r=1; $r < count($ims) ; $r++) { 
+            $arrCol["blah3"].= "<img src=\"../../images/fix/$ims[$r]\" style=\"height:200px;cursor:pointer;\" onclick=\"window.open('../../images/fix/$ims[$r]','_blank')\">";
+          }
+        }else{
+          $arrCol["blah3"].= "<img src=\"../../images/fix/".$arrCol["image_return"]." style=\"height:200px;cursor:pointer;\" onclick=\"window.open('../../images/fix/$ims[$r]','_blank')\">";
+        }
+      }
+
     array_push($resultArray,$arrCol);
   }
   
@@ -117,8 +200,35 @@ if($objQuery){
 
 }else if($_POST["submit"]=="update_fix"){
 
-$resultArray=array();
-$arrCol=array();
+// $resultArray=array();
+// $arrCol=array();
+$array_image="";
+if(isset($_FILES["fileupload"]))
+{
+    foreach($_FILES['fileupload']['tmp_name'] as $key => $val)
+    {
+
+            //$new_barcode = date("y").str_pad(($barcode_new+$i),6,"0",STR_PAD_LEFT);
+    $images = $_FILES["fileupload"]["tmp_name"][$key];
+    $new_images = date("ymdHis").$key.".jpg";
+    //copy($_FILES["product"]["tmp_name"],"../images/send_product/".$_FILES["product"]["name"]);
+    $width=640; //*** Fix Width & Heigh (Autu caculate) ***//
+    $size=GetimageSize($images);
+    $height=round($width*$size[1]/$size[0]);
+    $images_orig = ImageCreateFromJPEG($images);
+    $photoX = ImagesX($images_orig);
+    $photoY = ImagesY($images_orig);
+    $images_fin = ImageCreateTrueColor($width, $height);
+    ImageCopyResampled($images_fin, $images_orig, 0, 0, 0, 0, $width+1, $height+1, $photoX, $photoY);
+    ImageJPEG($images_fin,"../../images/fix/".$new_images);
+    //ImageDestroy($images_orig);
+    ImageDestroy($images_fin);
+    chmod("../../images/fix/".$new_images, 0777);
+
+    $array_image.="#".$new_images;
+    }
+    //echo "Copy/Upload Complete";
+}
 
 $strSQL = "UPDATE hirefix SET ";
 $strSQL .="dateday = '".convert_dateday($_POST["dateday"])."' ";
@@ -131,24 +241,39 @@ $strSQL .=",no = '".$_POST["no"]."' ";
 $strSQL .=",type_fix = '".$_POST["type_fix"]."' ";
 $strSQL .=",type = '".$_POST["type"]."' ";
 $strSQL .=",other = '".$_POST["other"]."' ";
+if($array_image){
+$strSQL .=",images = '".$array_image."' ";
+}
 $strSQL .=",officer = '".$_POST["officer"]."' ";
 $strSQL .=",userid = '".$_SESSION["xid"]."' ";
 $strSQL .=",status = '0' ";
 $strSQL .="WHERE row_id = '".$_POST["row_id"]."' ";
 $objQuery = mysql_query($strSQL);
 
-if($objQuery){
-	$arrCol["status"]="true";
-	$arrCol["msg"]="บันทึกใบแจ้งซ่อมเรียบร้อย...";
-}else{
-	$arrCol["status"]="error";
-	$arrCol["msg"]=mysql_error();
-}
+// if($objQuery){
+// 	$arrCol["status"]="true";
+// 	$arrCol["msg"]="บันทึกใบแจ้งซ่อมเรียบร้อย...";
+// }else{
+// 	$arrCol["status"]="error";
+// 	$arrCol["msg"]=mysql_error();
+// }
 
+
+if($objQuery){
+//  $arrCol["status"]="true";
+//  $arrCol["msg"]="บันทึกใบแจ้งซ่อมเรียบร้อย...";
+  echo "<div style='padding:100px;100px;text-align:center;width:600px;height:300px;position:fixed;top:50%;left:50%;margin-left:-300px;margin-top:-150px;font-size:40px;color:green;'>บันทึกใบแจ้งซ่อมเรียบร้อย...</div>";
+  echo "<Script Language='JavaScript'> function CloseWindowsInTime(t){t = t*1000;setTimeout(function(){ window.location='hire_fix.php';},t);}CloseWindowsInTime(3); </Script>";
+ }else{
+//  $arrCol["status"]="error";
+//  $arrCol["msg"]=mysql_error();
+    echo "<div style='padding:100px;100px;text-align:center;width:600px;height:300px;position:fixed;top:50%;left:50%;margin-left:-300px;margin-top:-150px;font-size:40px;color:red;'>ไม่สามารถบันทึกใบแจ้งซ่อมเรียบร้อย...</div>";
+  echo "<Script Language='JavaScript'> function CloseWindowsInTime(t){t = t*1000;setTimeout(function(){ window.history.back();},t);}CloseWindowsInTime(3); </Script>";
+ }
   
-  array_push($resultArray,$arrCol);
+  // array_push($resultArray,$arrCol);
   
-  echo json_encode($resultArray);
+  // echo json_encode($resultArray);
 }else if($_POST["submit"]=="del_fix"){
 
   $sql_del = "DELETE FROM hirefix WHERE row_id = '".$_POST["row_id"]."'"; 
@@ -156,6 +281,34 @@ if($objQuery){
 
 }else if($_POST["submit"]=="update_reciptfix"){
 
+
+
+if(isset($_FILES["fileupload"]))
+{
+    foreach($_FILES['fileupload']['tmp_name'] as $key => $val)
+    {
+
+            //$new_barcode = date("y").str_pad(($barcode_new+$i),6,"0",STR_PAD_LEFT);
+    $images = $_FILES["fileupload"]["tmp_name"][$key];
+    $new_images = date("ymdHis").$key.".jpg";
+    //copy($_FILES["product"]["tmp_name"],"../images/send_product/".$_FILES["product"]["name"]);
+    $width=640; //*** Fix Width & Heigh (Autu caculate) ***//
+    $size=GetimageSize($images);
+    $height=round($width*$size[1]/$size[0]);
+    $images_orig = ImageCreateFromJPEG($images);
+    $photoX = ImagesX($images_orig);
+    $photoY = ImagesY($images_orig);
+    $images_fin = ImageCreateTrueColor($width, $height);
+    ImageCopyResampled($images_fin, $images_orig, 0, 0, 0, 0, $width+1, $height+1, $photoX, $photoY);
+    ImageJPEG($images_fin,"../../images/fix/".$new_images);
+    //ImageDestroy($images_orig);
+    ImageDestroy($images_fin);
+    chmod("../../images/fix/".$new_images, 0777);
+
+    $array_image.="#".$new_images;
+    }
+    //echo "Copy/Upload Complete";
+}
 
 $resultArray=array();
 $arrCol=array();
@@ -174,6 +327,10 @@ $strSQL .=",other = '".$_POST["other"]."' ";
 $strSQL .=",officer = '".$_POST["officer"]."' ";
 $strSQL .=",userid = '".$_SESSION["xid"]."' ";
 $strSQL .=",status = '1' ";
+$strSQL .=",datefix = '".$_POST["datefix"]."' ";
+if($array_image){
+$strSQL .=",images_recipt = '".$array_image."' ";
+}
 $strSQL .=",date_recipt = '".convert_dateday($_POST["date_recipt"])."' ";
 $strSQL .=",time_recipt = '".$_POST["time_recipt"]."' ";
 $strSQL .=",other_fix = '".$_POST["other_fix"]."' ";
@@ -199,6 +356,34 @@ if($objQuery){
 
 }else if($_POST["submit"]=="update_return_fix"){
 
+
+if(isset($_FILES["filefixupload"]))
+{
+    foreach($_FILES['filefixupload']['tmp_name'] as $key => $val)
+    {
+            //$new_barcode = date("y").str_pad(($barcode_new+$i),6,"0",STR_PAD_LEFT);
+    $images = $_FILES["filefixupload"]["tmp_name"][$key];
+    $new_images = date("ymdHis").$key.".jpg";
+    //copy($_FILES["product"]["tmp_name"],"../images/send_product/".$_FILES["product"]["name"]);
+    $width=640; //*** Fix Width & Heigh (Autu caculate) ***//
+    $size=GetimageSize($images);
+    $height=round($width*$size[1]/$size[0]);
+    $images_orig = ImageCreateFromJPEG($images);
+    $photoX = ImagesX($images_orig);
+    $photoY = ImagesY($images_orig);
+    $images_fin = ImageCreateTrueColor($width, $height);
+    ImageCopyResampled($images_fin, $images_orig, 0, 0, 0, 0, $width+1, $height+1, $photoX, $photoY);
+    ImageJPEG($images_fin,"../../images/fix/".$new_images);
+    //ImageDestroy($images_orig);
+    ImageDestroy($images_fin);
+    chmod("../../images/fix/".$new_images, 0777);
+
+    $array_image.="#".$new_images;
+    }
+    //echo "Copy/Upload Complete";
+}
+
+
 $resultArray=array();
 $arrCol=array();
 
@@ -209,6 +394,9 @@ $strSQL .=",other_return = '".$_POST["other_return"]."' ";
 $strSQL .=",nobill_recipt = '".$_POST["nobill_recipt"]."' ";
 $strSQL .=",money_recipt = '".$_POST["money_recipt"]."' ";
 $strSQL .=",officer_fix = '".$_POST["officer_fix"]."' ";
+if($array_image){
+$strSQL .=",image_return = '".$array_image."' ";
+}
 $strSQL .=",status = '9' ";
 $strSQL .="WHERE row_id = '".$_POST["row_id"]."' ";
 $objQuery = mysql_query($strSQL)or die(mysql_error());
@@ -269,6 +457,8 @@ if($objQuery){
     {
       $arrCol[mysql_field_name($objQuery,$i)] = $obResult[$i];
     }
+
+
     array_push($resultArray,$arrCol);
   }
   
@@ -278,6 +468,66 @@ if($objQuery){
 
 
 
+
+}else if($_POST["submit"]=="del_image_fix"){
+
+
+  $sql = "SELECT images FROM hirefix WHERE row_id = '".$_POST["row_id"]."'";
+  list($images) = Mysql_fetch_row(Mysql_Query($sql));
+
+
+     $ims=explode("#",$images);
+      if($images){
+        if(count($ims)>0){
+          for ($r=1; $r < count($ims) ; $r++) { 
+            $flgDelete = unlink("../../images/fix/".$ims[$r]);
+          //  $arrCol["blah"].= "<img src=\"../../images/fix/$ims[$r]\" style=\"height:200px;\">";
+          }
+        }else{
+          //$arrCol["blah"].= "<img src=\"../../images/fix/".$arrCol["images"]." style=\"height:200px;\">";
+            $flgDelete = unlink("../../images/fix/".$images);
+        }
+      }
+
+$sql_update = "UPDATE hirefix SET images='' WHERE row_id = '".$_POST["row_id"]."' ";
+$result_update= mysql_query($sql_update) or die(mysql_error());
+
+
+}else if($_POST["submit"]=="del_image_fixrecipt"){
+
+
+  $sql = "SELECT images_recipt FROM hirefix WHERE row_id = '".$_POST["row_id"]."'";
+  list($images) = Mysql_fetch_row(Mysql_Query($sql));
+
+
+     $ims=explode("#",$images);
+      if($images){
+        if(count($ims)>0){
+          for ($r=1; $r < count($ims) ; $r++) { 
+            $flgDelete = unlink("../../images/fix/".$ims[$r]);
+          //  $arrCol["blah"].= "<img src=\"../../images/fix/$ims[$r]\" style=\"height:200px;\">";
+          }
+        }else{
+          //$arrCol["blah"].= "<img src=\"../../images/fix/".$arrCol["images"]." style=\"height:200px;\">";
+            $flgDelete = unlink("../../images/fix/".$images);
+        }
+      }
+
+$sql_update = "UPDATE hirefix SET images_recipt='' WHERE row_id = '".$_POST["row_id"]."' ";
+$result_update= mysql_query($sql_update) or die(mysql_error());
+
+
+
+}else if($_POST["submit"]=="cal_datefix"){
+
+
+
+$dateday=convert_dateday($_POST["dateday"]);
+$dateday=(substr($dateday,0,4)-543).substr($dateday,5);
+//$dd=date("H:i:s",time()); //กำหนดวันที่ปัจจุบัน
+$dr=expdate($dateday,$_POST["datefix"]); //ส่งค่าให้ฟังก์ชั่น วันที่ปัจจุบัน พร้อมจำนวนวัน
+$df=date("d/m/Y",$dr); //จัดรูปแบบวันที่ก่อนแสดง
+echo substr($df,0,2)."/".substr($df,3,2)."/".(substr($df,6,4)+543); //แสดงวันที่ออกมา
 
 }
 ?>

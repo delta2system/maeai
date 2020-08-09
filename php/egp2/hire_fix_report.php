@@ -14,6 +14,18 @@ function department_return($str){
   return $name;
 }
 
+
+function expdate($startdate,$datenum){
+ $startdate_new=(substr($startdate, 0,4)-543).substr($startdate,4);
+ $startdatec=strtotime($startdate_new); // ทำให้ข้อความเป็นวินาที
+ $tod=$datenum*86400; // รับจำนวนวันมาคูณกับวินาทีต่อวัน
+ $ndate=$startdatec+$tod; // นับบวกไปอีกตามจำนวนวันที่รับมา
+// $dr=expdate($dateday,$_POST["datefix"]); //ส่งค่าให้ฟังก์ชั่น วันที่ปัจจุบัน พร้อมจำนวนวัน
+$df=date("d/m/Y",$ndate); //จัดรูปแบบวันที่ก่อนแสดง
+$new_date = substr($df,0,2)." ".mount(substr($df,3,2))." ".(substr($df,6,4)+543); //แสดงวันที่ออกมา
+ return $new_date; // ส่งค่ากลับ
+}
+
 function mount($str){
 switch($str)
 {
@@ -114,6 +126,7 @@ return $str;
                   <th>แผนก</th>
                   <th>ส่งซ่อม</th>
                   <th>อาการ</th>
+                  <th>เวลาประกัน</th>
                   <th>ผู้แจ้ง</th>
                   <th style="width:90px;">สถานะ</th>
                   <th></th>
@@ -129,6 +142,7 @@ return $str;
                      "<th>".department_return($fix[department])."</th>".
                      "<th>$fix[product]</th>".
                      "<th>$fix[other]</th>".
+                     "<th>".expdate($fix[date_recipt],$fix[datefix])."</th>".
                      "<th>$fix[officer]</th>".
                      "<th style='background-color:".status_color($fix[type_status_fix]).";'>".status_txt($fix[status])."</th>";
                     if($position=="011"){
@@ -137,16 +151,17 @@ return $str;
                          "<button class='btn btn-info' onclick=\"window.location='hire_fix_recipt.php?row_id=".$fix[row_id]."'\"><li class='fa fa-gear'></li></button> ".
                          "<button class='btn btn-danger' onclick=\"del_fix('$fix[row_id]','$fix[product]')\"><li class='fa fa-trash'></li></button>".
                          "</th>";    
-                    }else if($fix[userid]==$_SESSION["xid"]){
-                    echo "<th style='width:80px;'>".
-                         "<button class='btn btn-success' onclick=\"window.location='hire_fix.php?row_id=".$fix[row_id]."'\"><li class='fa fa-edit'></li></button> ".
-                         "<button class='btn btn-danger' onclick=\"del_fix('$fix[row_id]','$fix[product]')\"><li class='fa fa-trash'></li></button>".
-                         "</th>";
                     }else if($position=='012'){
                     echo "<th style='width:80px;'>".
                          "<button class='btn btn-info' onclick=\"window.location='hire_fix_recipt.php?row_id=".$fix[row_id]."'\"><li class='fa fa-gear'></li></button> ".
                          "<button class='btn btn-danger' onclick=\"del_fix('$fix[row_id]','$fix[product]')\"><li class='fa fa-trash'></li></button>".
                          "</th>";                      
+                    }else if($fix[userid]==$_SESSION["xid"]){
+                    echo "<th style='width:80px;'>".
+                         "<button class='btn btn-success' onclick=\"window.location='hire_fix.php?row_id=".$fix[row_id]."'\"><li class='fa fa-edit'></li></button> ".
+                         
+                         "<button class='btn btn-danger' onclick=\"del_fix('$fix[row_id]','$fix[product]')\"><li class='fa fa-trash'></li></button>".
+                         "</th>";
                     }
                  }
                 ?>
@@ -184,6 +199,7 @@ return $str;
                   <th>แผนก</th>
                   <th>อุปกรณ์/วัสดุ</th>
                   <th>อาการ</th>
+                  <th>สาเหตุส่งคืน</th>
                   <th>ผู้แจ้ง</th>
                   <th style="width:90px;">สถานะ</th>
                   <th></th>
@@ -198,8 +214,9 @@ return $str;
                      "<th>".department_return($fix[department])."</th>".
                      "<th>$fix[product]</th>".
                      "<th>$fix[other]</th>".
+                     "<th>$fix[other_return]</th>".
                      "<th>$fix[officer_recipt]</th>".
-                     "<th>".status_return($fix[type_status_return])."</th>";
+                     "<th>".status_return($fix[type_status_return])." &nbsp;&nbsp;<li class='fa fa-search' style='color:red;cursor:pointer;' onclick=\"show_report('".$fix[row_id]."')\"></li></th>";
                     if($position=="Admin"){
                     echo "<th style='width:130px;'>".
                          "<button class='btn btn-danger' onclick=\"del_fix('$fix[row_id]','$fix[product]')\"><li class='fa fa-trash'></li></button>".
@@ -250,4 +267,9 @@ return $str;
     $('#example1').DataTable();
      $('#example2').DataTable();
   })
+
+
+  function show_report(rd){
+        window.open("hire_fix_report_show.php?row_id="+rd,"_blank","toolbar=no,scrollbars=yes,resizable=yes,top=50px,left=50px,width=900,height=700");
+  }
 </script>
