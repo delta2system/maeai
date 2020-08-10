@@ -56,7 +56,7 @@ $total[8]=array("");
 $total[9]=array("");
 $total_3=array("");
 $total_4=array("");
-$sql="SELECT * FROM store WHERE store_type = '$data[code]' ";
+$sql="SELECT * FROM store WHERE store_type = '$data[code]' ORDER By daterecipt ASC ";
 $result = mysql_query($sql);
 print "<table style='width:1100px;'>";
 echo "<thead>".
@@ -299,7 +299,6 @@ echo "<tr style='background-color:$cel;'><td style='text-align:center;'>$t  </td
 
 	//ค่าเสื่อมปัจจุบัน
 
-
 	echo "<td style='text-align:right;'>&nbsp;</td>";
 	echo "<td style='text-align:right;'>&nbsp;</td>";
 	echo "<td style='text-align:right;'>&nbsp;</td>";
@@ -313,8 +312,8 @@ echo "<tr style='background-color:$cel;'><td style='text-align:center;'>$t  </td
 	echo "<td style='text-align:right;'>&nbsp;</td>";
 	echo "<td style='text-align:right;'>&nbsp;</td>";
 //recheck_bath($cal*$m)
-	echo "<td style='text-align:right;'>&nbsp;</td>";
 	echo "<td style='text-align:right;'>".recheck_bath($last_dy)."</td>";
+	echo "<td style='text-align:right;'>".recheck_bath(($row[numberofsets]*$row[priceofsets])-$last_dy)."</td>";
 
 array_push($total_1,($row[numberofsets]*$row[priceofsets]));
 array_push($total_2,$last_dy);

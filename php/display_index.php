@@ -1,6 +1,52 @@
 <?
 session_start();
 include("connect.inc");
+
+  // $sql = "SELECT position,bill_in_edit,bill_out_edit,limitstock from user_account WHERE username = '".$_SESSION["xusername"]."' ";
+  // list($position,$bill_in_edit,$bill_out_edit,$limitstock) = Mysql_fetch_row(Mysql_Query($sql));
+
+function department_return($str){
+    $sql = "SELECT name from department WHERE code = '$str' ";
+  list($name) = Mysql_fetch_row(Mysql_Query($sql));
+  return $name;
+}
+
+function supply_return($str){
+   $sql = "SELECT name from customer_supply WHERE code = '$str' ";
+  list($name) = Mysql_fetch_row(Mysql_Query($sql));
+  return $name;
+
+}
+
+function expdate($startdate,$datenum){
+ $startdate_new=(substr($startdate, 0,4)-543).substr($startdate,4);
+ $startdatec=strtotime($startdate_new); // ทำให้ข้อความเป็นวินาที
+ $tod=$datenum*86400; // รับจำนวนวันมาคูณกับวินาทีต่อวัน
+ $ndate=$startdatec+$tod; // นับบวกไปอีกตามจำนวนวันที่รับมา
+// $dr=expdate($dateday,$_POST["datefix"]); //ส่งค่าให้ฟังก์ชั่น วันที่ปัจจุบัน พร้อมจำนวนวัน
+$df=date("d/m/Y",$ndate); //จัดรูปแบบวันที่ก่อนแสดง
+$new_date = substr($df,0,2)." ".mount(substr($df,3,2))." ".(substr($df,6,4)+543); //แสดงวันที่ออกมา
+ return $new_date; // ส่งค่ากลับ
+}
+
+function mount($str){
+switch($str)
+{
+case "01": $str = "ม.ค."; break;
+case "02": $str = "ก.พ."; break;
+case "03": $str = "มี.ค."; break;
+case "04": $str = "เม.ย."; break;
+case "05": $str = "พ.ค."; break;
+case "06": $str = "มิ.ย."; break;
+case "07": $str = "ก.ค."; break;
+case "08": $str = "ส.ค."; break;
+case "09": $str = "ก.ย."; break;
+case "10": $str = "ต.ค."; break;
+case "11": $str = "พ.ย."; break;
+case "12": $str = "ธ.ค."; break;
+}
+return $str;
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -127,8 +173,107 @@ include("connect.inc");
               <button type="button" class="btn btn-default pull-right"><i class="fa fa-plus"></i> Add item</button>
             </div> -->
           </div>
-          <!-- /.box -->
 
+          <div class="box box-danger">
+            <div class="box-header">
+              <h3 class="box-title"><i class="fa fa-wrench"></i> ทะเบียนแจ้งซ่อม</h3>
+            </div>
+            <!-- /.box-header -->
+            <?
+            function status_color($str){
+
+              switch ($str) {
+                case "1": $str = "#80ff80"; break;
+                case "2": $str = "#ffff66"; break;
+                case "3": $str = "#ff9999"; break;
+
+              }
+              return $str;
+            }
+
+            function status_txt($str){
+              switch ($str) {
+                case "0": $str = "แจ้งซ่อม"; break;
+                //case "1": $str = "แจ้งซ่อม"; break;
+                case "1": $str = "รับแจ้งซ่อมแล้ว"; break;
+                case "2": $str = "ซ่อมแล้ว"; break;
+
+              }
+              return $str;
+            }
+            ?>
+            <div class="box-body">
+              <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                  <th>วันที่แจ้ง</th>
+                  <th>เวลา</th>
+                  <th>แผนก</th>
+                  <th>ส่งซ่อม</th>
+                  <th>อาการ</th>
+                  <th>ประกันวันซ่อม</th>
+                  <th>ผู้แจ้ง</th>
+                  <th style="width:90px;">สถานะ</th>
+                  <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <?
+                 $sqls = "SELECT * from hirefix WHERE status < '9' ORDER By dateday ASC,times ASC ";
+                 $results = mysql_query($sqls);
+                 while ($fix = mysql_fetch_array($results) ) {
+                echo "<tr><th>".substr($fix[dateday],8,2)." ".mount(substr($fix[dateday],5,2))." ".substr($fix[dateday],0,4)."</th>".
+                     "<th>$fix[times]</th>".
+                     "<th>".department_return($fix[department])."</th>".
+                     "<th>$fix[product]</th>".
+                     "<th>$fix[other]</th>".
+                     "<th>";
+                    if($fix[datefix]){
+                    echo expdate($fix[date_recipt],$fix[datefix]);
+                   }
+
+                   echo   "</th>".
+                     "<th>$fix[officer]</th>".
+                     
+                     "<th style='background-color:".status_color($fix[type_status_fix]).";'>".status_txt($fix[status])."</th>";
+                    if($position=="Admin"){
+                    echo "<th style='width:130px;'>".
+                         "<button class='btn btn-success' onclick=\"window.location='egp2/hire_fix.php?row_id=".$fix[row_id]."'\"><li class='fa fa-edit'></li></button> ".
+                         "<button class='btn btn-info' onclick=\"window.location='egp2/hire_fix_recipt.php?row_id=".$fix[row_id]."'\"><li class='fa fa-gear'></li></button> ".
+                         "<button class='btn btn-danger' onclick=\"del_fix('$fix[row_id]','$fix[product]')\"><li class='fa fa-trash'></li></button>".
+                         "</th>";    
+                    }else if($fix[userid]==$_SESSION["xid"]){
+                    echo "<th style='width:80px;'>".
+                         "<button class='btn btn-success' onclick=\"window.location='egp2/hire_fix.php?row_id=".$fix[row_id]."'\"><li class='fa fa-edit'></li></button> ".
+                         "<button class='btn btn-danger' onclick=\"del_fix('$fix[row_id]','$fix[product]')\"><li class='fa fa-trash'></li></button>".
+                         "</th>";
+                    }else if(substr_count($position,'ช่าง')>=1){
+                    echo "<th style='width:80px;'>".
+                         "<button class='btn btn-info' onclick=\"window.location='egp2/hire_fix_recipt.php?row_id=".$fix[row_id]."'\"><li class='fa fa-gear'></li></button> ".
+                         "<button class='btn btn-danger' onclick=\"del_fix('$fix[row_id]','$fix[product]')\"><li class='fa fa-trash'></li></button>".
+                         "</th>";                      
+                    }
+                 }
+                ?>
+                </tbody>
+                <tfoot>
+                  <th colspan="7" style="text-align: right;"> สถานะ <span style="color:<?=status_color(1)?>">&#9607;</span> ปกติ&nbsp;&nbsp;<span style="color:<?=status_color(2)?>;">&#9607;</span> ด่วน&nbsp;&nbsp;<span style="color:<?=status_color(3)?>;">&#9607;</span> ฉุกเฉิน&nbsp;&nbsp;</th>
+                </tfoot>
+<!--                 <tfoot>
+                <tr>
+                  <th>วันที่แจ้ง</th>
+                  <th>เวลา</th>
+                  <th>ส่งซ่อม</th>
+                  <th>อาการ</th>
+                  <th>ผู้แจ้ง</th>
+                  <th>สถานะ</th>
+                </tr>
+                </tfoot> -->
+              </table>
+            </div>
+            <!-- /.box-body -->
+          </div>
+          <!-- /.box -->
 </section>
 <!-- jQuery 3 -->
 <script src="dashboard/bower_components/jquery/dist/jquery.min.js"></script>

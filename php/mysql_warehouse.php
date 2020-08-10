@@ -15,7 +15,7 @@ case '03' : $month = "มี.ค.";break;
 case '04' : $month = "เม.ย.";break;
 case '05' : $month = "พ.ค";break;
 case '06' : $month = "มิ.ย.";break;
-case '07' : $month = "กใค.";break;
+case '07' : $month = "ก.ค.";break;
 case '08' : $month = "ส.ค.";break;
 case '09' : $month = "ก.ย.";break;
 case '10' : $month = "ต.ค.";break;
@@ -265,6 +265,7 @@ if(substr_count($nu, substr($barcode,0,1))){
 
 $strSQL = "INSERT INTO stock_product SET "; 
 $strSQL .="barcode = '".$_POST["barcode"]."' ";
+$strSQL .=",qrcode = '".$_POST["qrcode"]."' ";
 $strSQL .=",detail = '".$_POST["detail"]."' ";
 $strSQL .=",price_in = '".comma_price($_POST["price"])."' ";
 $strSQL .=",group_type = '".$_POST["group_type"]."' ";
@@ -298,9 +299,9 @@ $objQuery = mysql_query($strSQL);
 }else if($_POST["submit"]=="stock_search"){
 
   if($_POST["group_type"]!='all' && $_POST["group_type"]!=""){
-    $search = "WHERE group_type = '".$_POST["group_type"]."' AND ( detail like '%".$_POST["search"]."%' OR barcode like '%".$_POST["search"]."%')";
+    $search = "WHERE group_type = '".$_POST["group_type"]."' AND ( detail like '%".$_POST["search"]."%' OR barcode like '%".$_POST["search"]."%' OR qrcode like '%".$_POST["search"]."%')";
   }else if($_POST["group_type"]=='' && $_POST["search"]!=""){
-    $search = "WHERE  detail like '%".$_POST["search"]."%' OR barcode like '%".$_POST["search"]."%'";
+    $search = "WHERE  detail like '%".$_POST["search"]."%' OR barcode like '%".$_POST["search"]."%' OR qrcode like '%".$_POST["search"]."%'";
   }else if($_POST["group_type"]=='all' && $_POST["search"]==""){
     $search = "";
   }else{

@@ -282,6 +282,7 @@ function chkEvent(e) {
 
           function save_new_product(){
             var data = "&barcode="+$("input[name=new_barcode]").val();
+                data = data + "&qrcode="+$("input[name=new_qrcode]").val();
                 data = data + "&detail="+$("input[name=new_detail]").val();
                 data = data + "&price="+$("input[name=new_price]").val();
                 data = data + "&unit="+$("input[name=new_unit]").val();
@@ -409,7 +410,7 @@ function chkEvent(e) {
 </div>
 </center>
 
-<div id="new_pd" style="display:none;position:fixed;z-index:5;width:900px;height:380px;top:50%;margin-top:-200px;background-color: #f7f7f7;border:1px solid #e0e0e0;border-radius: 5px;left:50%;margin-left:-450px;box-shadow: 5px 5px 5px #909090;">
+<div id="new_pd" style="display:none;position:fixed;z-index:5;width:900px;height:480px;top:50%;margin-top:-200px;background-color: #f7f7f7;border:1px solid #e0e0e0;border-radius: 5px;left:50%;margin-left:-450px;box-shadow: 5px 5px 5px #909090;">
   <img src="../images/new_product.png" style="position: absolute;width:360px;margin-top: 40px;" >
   <div style="width:100%height:50px;text-align: center;font-size: 20px;font-weight: bold;margin-top: 25px;color: #01840e;">..:: เพิ่มสินค้าใหม่ ::..</div>
   <div style="text-align: center;margin-top: 25px;">
@@ -425,7 +426,11 @@ function chkEvent(e) {
   </select>
   <span  class="button_menu" style="position:absolute;float:middle;font-size: 16px;color:#3b5998;margin-left: 220px;margin-top: -40px;" onclick="$('#new_gp').toggle()"> <img src="../images/menu/plus.png" style="width:18px;vertical-align: middle;" > เพิ่มกลุ่มสินค้า</span>
 </span><br>
-  <span style="width:120px;height:20px;display: inline-block;font-size: 17px;text-align: right;">รหัสสินค้า :</span>   <span style="width:100px;height:50px;display: inline-block;"><input type="text" name="new_barcode" style="width:250px;font-size: 17px;padding:10px 5px;" onkeyup="if(event.keyCode==13){ $('input[name=new_detail]').focus();}else if(event.keyCode==27){$('#new_pd').hide();}"></span><br>
+  <span style="width:120px;height:20px;display: inline-block;font-size: 17px;text-align: right;">รหัสสินค้า :</span>   <span style="width:100px;height:50px;display: inline-block;"><input type="text" name="new_barcode" style="width:250px;font-size: 17px;padding:10px 5px;" onkeyup="if(event.keyCode==13){ $('input[name=new_detail]').focus();}else if(event.keyCode==27){$('#new_pd').hide();}">  <span  class="button_menu" style="position:absolute;float:middle;font-size: 16px;color:#3b5998;margin-left: 220px;margin-top: -40px;" onclick="$('#add_qrcode').toggle();$('input[name=new_qrcode]').focus();"> <img src="../images/menu/plus.png" style="width:18px;vertical-align: middle;" > เพิ่มQRCode</span> </span><br>
+  <div id="add_qrcode" style="display: none;">
+   <span style="width:120px;height:20px;display: inline-block;font-size: 17px;text-align: right;">QR code :</span>   <span style="width:100px;height:50px;display: inline-block;"><input type="text" name="new_qrcode" style="width:250px;font-size: 17px;padding:10px 5px;" onkeyup="if(event.keyCode==13){ $('input[name=new_detail]').focus();}else if(event.keyCode==27){$('#new_pd').hide();}"> </span></div>
+
+
   <span style="width:120px;height:20px;display: inline-block;font-size: 17px;text-align: right;">รายการสินค้า :</span>  <span style="width:100px;height:50px;display: inline-block;"><input type="text" name="new_detail" style="width:250px;font-size: 17px;padding:10px 5px;" onkeyup="if(event.keyCode==13){ $('input[name=new_price]').focus();}else if(event.keyCode==27){$('#new_pd').hide();}"></span><br>
   <span style="width:120px;height:20px;display: inline-block;font-size: 17px;text-align: right;">ราคาสินค้า :</span>    <span style="width:100px;height:50px;display: inline-block;"><input type="text" name="new_price" style="width:250px;font-size: 17px;padding:10px 5px;" onkeyup="if(event.keyCode==13){ $('input[name=new_unit]').focus();}else if(event.keyCode==27){$('#new_pd').hide();}"></span><br>
   <span style="width:120px;height:20px;display: inline-block;font-size: 17px;text-align: right;">หน่วยนับ :</span>     <span style="width:100px;height:50px;display: inline-block;"><input type="text" name="new_unit" style="width:250px;font-size: 17px;padding:10px 5px;" onkeyup="if(event.keyCode==13){save_new_product();}else if(event.keyCode==27){$('#new_pd').hide();}"></span><br>

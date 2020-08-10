@@ -61,5 +61,41 @@ echo $row_id+1;
   $sql_del = "DELETE FROM tbl_typeofmoney WHERE row_id = '".$_POST["row_id"]."' "; 
   $query = mysql_query($sql_del);
 
+}else if($_GET["submit"]=="return_department"){
+
+  $resultArray = array();
+  $searchTerm = $_GET['term']; 
+
+  if($_GET["table"]=="department"){
+
+  $strSQL = "SELECT code,name FROM department WHERE  name like '%".$searchTerm ."%' limit 10";
+  $objQuery = mysql_query($strSQL) or die (mysql_error());
+  $intNumField = mysql_num_fields($objQuery);
+  $resultArray = array();
+  while($obResult = mysql_fetch_array($objQuery))
+  {
+    $arrCol = array();
+      $arrCol['id'] = $obResult['code'];
+      $arrCol['value'] = $obResult['name'];
+    array_push($resultArray,$arrCol);
+  }
+
+  }else if($_GET["table"]=="tbl_typeofmoney"){
+
+  $strSQLs = "SELECT row_id,detail FROM tbl_typeofmoney WHERE detail like '%".$searchTerm ."%' limit 10";
+  $objQuery = mysql_query($strSQLs) or die (mysql_error());
+  $intNumField = mysql_num_fields($objQuery);
+  $resultArray = array();
+  while($obResult = mysql_fetch_array($objQuery))
+  {
+    $arrCol = array();
+      $arrCol['id'] = $obResult['row_id'];
+      $arrCol['value'] = $obResult['detail'];
+    array_push($resultArray,$arrCol);
+  }
+  }
+
+  echo json_encode($resultArray);
+
 }
 ?>

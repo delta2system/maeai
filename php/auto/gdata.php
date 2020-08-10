@@ -55,7 +55,7 @@ while ($row = mysql_fetch_array( $results )) {
 }
 
 }
-
+ 
 
 }else if(isset($_GET["product"])){
 
@@ -65,7 +65,7 @@ $table_db="stock_product"; // ตารางที่ต้องการค�
 $find_field="detail"; // ฟิลที่ต้องการค้นหา
 
 //$sql = "SELECT * from $table_db  where locate('$q', $find_field) > 0 order by locate('$q', $find_field), $find_field limit $pagesize";
-$sql = "SELECT * from $table_db  where detail like '%$q%' OR barcode like '%$q%'   order by pcs desc limit $pagesize";
+$sql = "SELECT * from $table_db  where detail like '%$q%' OR barcode like '%$q%' OR qrcode like '%$q%'   order by pcs desc limit $pagesize";
 $results = mysql_query($sql);
 if(mysql_num_rows($results)){
 while ($row = mysql_fetch_array( $results )) {

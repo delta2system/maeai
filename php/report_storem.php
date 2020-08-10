@@ -92,7 +92,11 @@ function comma_n($str){
 
     <?
     //$sqla="SELECT opcard.hn, opcard.ampur, opcard.tambol FROM tbl_typeofmoney INNER JOIN store ON tbl_typeofmoney.row_id=store.typeofmoney WHERE daterecipt between '".($_GET["year"]-1)."-10-01' AND '".$_GET["year"]."-09-30' ORDER By tbl_typeofmoney.row_id ASC,store.code";
-    $sqla = "SELECT * FROM tbl_typeofmoney  ORDER By row_id ASC ";
+    $sqla = "SELECT * FROM tbl_typeofmoney ";
+    if($_GET["table_search"]=="tbl_typeofmoney"){
+      $sqla.="WHERE row_id = '".$_GET["search"]."' ";
+    }
+    $sqla .=" ORDER By row_id ASC";
     $resulta = mysql_query($sqla);
     while($d = mysql_fetch_array($resulta)){
     echo "<table class='page_breck' style='width:290mm;'>";
@@ -100,7 +104,14 @@ function comma_n($str){
     echo "<tr><td class='topbar'>ลำดับ</td><td class='topbar'>รายการ</td><td class='topbar'>จุดติดตั้ง</td><td class='topbar'>เลขที่เอกสาร</td><td class='topbar' style='width:180px;'>ผู้ขาย</td><td class='topbar'>วันที่รับ</td><td class='topbar' style='100px'>ราคา</td></tr>";
       $i=0;
       $total=array('');
-    $sqlb = "SELECT * FROM store WHERE  typeofmoney = '".$d[row_id]."' AND daterecipt between '".($_GET["year"]-1)."-10-01' AND '".$_GET["year"]."-09-30'  ORDER By row_id ASC ";
+    $sqlb = "SELECT * FROM store WHERE  ";
+    $sqlb .="daterecipt between '".($_GET["year"]-1)."-10-01' AND '".$_GET["year"]."-09-30' ";
+    $sqlb .="AND typeofmoney = '".$d[row_id]."' ";
+    if($_GET["table_search"]=="department"){
+    $sqlb .="AND installation like '%".$_GET["search"]."%' ";  
+    }
+    $sqlb .="ORDER By row_id ASC ";
+
     $resultb = mysql_query($sqlb);
     while($data = mysql_fetch_array($resultb)){
       $i++;

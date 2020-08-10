@@ -10,7 +10,7 @@ if($_SESSION["xusername"]==""){
 <head>
   <title>..::รายงานครุภัณฑ์::..</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <script src="../js/jquery-1.8.0.min.js"></script>
+
 
   <style type="text/css">
   table{
@@ -42,14 +42,23 @@ if($_SESSION["xusername"]==""){
       margin-left:25px;
      }
 
-
+     select,input{
+      padding:5px 10px;
+      font-size: 16px;
+      border:1px solid #e2e2e2;
+     }
+     button{
+      font-size: 16px;
+      padding:5px 10px;
+      cursor: pointer;
+     }
   </style>
 </head>
 <body>
   <center>
 
 
-<fieldset style="width:870px;margin-left: 25px;border:1px solid #E65100;background-color: #FFF3E0;">
+<fieldset style="width:870px;margin-left: 25px;border:1px solid #E65100;background-color: #FFF3E0;padding:20px 10px;">
 <legend style="color:#E65100;">รายงานค่าเสื่อมราคาครุภัณฑ์ประจำเดือน </legend>
 <table>
   <td>เดือน</td><td>
@@ -72,20 +81,83 @@ if($_SESSION["xusername"]==""){
 </table>
 </fieldset>
 
-<fieldset style="width:870px;margin-left: 25px;border:1px solid #E65100;background-color: #FFF3E0;">
+<fieldset style="width:870px;margin-left: 25px;border:1px solid #E65100;background-color: #FFF3E0;padding:20px 10px;">
 <legend style="color:#E65100;">รายงานครุภัณฑ์จากการได้มา</legend>
 <table>
   </td><td>ปี</td><td><input type="text" name="yearp" style="width:80px;text-align: center;font-size: 16px;" value="<?=date('Y')+543?>"></td>
   <td><button onclick="sent_r()">ค้นหา</button></td>
 </table>
 </fieldset>
+
+
+<fieldset style="width:870px;margin-left: 25px;border:1px solid #E65100;background-color: #FFF3E0;padding:20px 10px;">
+<legend style="color:#E65100;">ค้นหารายงานครุภัณฑ์จากการได้มา</legend>
+<table>
+  <td>
+      <select onchange="select_search(this)" >
+        <option value="department">แผนก</option>
+        <option value="tbl_typeofmoney">การได้มา</option>
+      </select>
+      <input type="text" id="search" style="width:200px;"> 
+
+  </td><td>ปี</td><td><input type="text" name="yearp" style="width:80px;text-align: center;font-size: 16px;" value="<?=date('Y')+543?>"></td>
+  <td><button onclick="sent_rx()">ค้นหา</button>
+    <input type="hidden" id="table_search" value="department">
+    <input type="hidden" id="id_search">
+  </td>
+</table>
+</fieldset>
+
 </body>
 </html>
 <script type="text/javascript">
+
+  function select_search(str){
+    $("#table_search").val(str.value);
+  }
+
   function sent_m(){
     window.location='report_kharuphanth_month.php?month='+$("select[name=month]").val();+'&year='+$("input[name=year]").val();
   }
   function sent_r(){
     window.open('report_storem.php?year='+$("input[name=yearp]").val(),'_blank');
   }
+
+  function sent_rx(){
+    var data = "&search="+$("#search").val();
+        data = data + "&id="+$("#id_search").val();
+        data = data + "&table_search="+$("#table_search").val();
+        data = data + "&year="+$("input[name=yearp]").val();
+
+        window.open('report_storem.php?'+data,'_blank');
+  }
+
+
+</script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script>
+  $( function() {
+$( "#search" ).autocomplete({
+      source: function( request, response ) {
+        $.ajax( {
+          url: "mysql_tbl_typeofmoney.php",
+          dataType: "json",
+          data: {submit:'return_department',table:$('#table_search').val(),term: request.term},
+          success: function( data ) {
+            response( data );
+          }
+        } );
+      },
+      minLength: 2,
+      select: function( event, ui ) {
+       //log( "Selected: " + ui.item.value + " aka " + ui.item.id );
+        $("#id_search").val(ui.item.id);
+       // $('input[name=money]').focus();
+        // return_idcard(ui.item.id);
+        // report_deposit(ui.item.id);
+      }
+  });
+ });
 </script>

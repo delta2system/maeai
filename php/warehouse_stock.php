@@ -78,7 +78,11 @@ list($stock_edit) = Mysql_fetch_row(Mysql_Query($sql));
                   var tr = "<tr class='cursor_p' onclick=\"edit('"+val["row_id"]+"')\"><td style='text-align:center;' class='border_bt'>"+r+"</td>";
                   tr = tr +  "<td style='text-align:center;' class='border_bt'>"+val["group_name"]+"</td>";
                   tr = tr +  "<td style='text-align:center;' class='border_bt'>"+val["barcode"]+"</td>";
-                  tr = tr +  "<td class='border_bt'>&nbsp;&nbsp;"+val["detail"]+"</td>";
+                  tr = tr +  "<td class='border_bt' style='padding-left:10px;'>"+val["detail"];
+                  if(val["qrcode"]!=""){
+                  tr = tr + "<br>"+val["qrcode"];
+                  }
+                  tr = tr +  "</td>";
                   tr = tr +  "<td style='text-align:center;' class='border_bt'>"+val["pcs"]+"</td>";
                   tr = tr +  "<td style='text-align:center;' class='border_bt'>"+val["unit"]+"</td>";
                   tr = tr +  "<td style='text-align:center;' class='border_bt'>"+val["price_in"]+"</td>";

@@ -80,7 +80,7 @@ return $str;
   <script type="text/javascript">
     function search1(){
       var year =  parseFloat(document.getElementById("year").value);
-      //var month = document.getElementById("month").value;
+      var group_type = document.getElementById("group_type").value;
       var barcode = document.getElementById("barcode").value;
 
       var date1 = (year-1)+"-10-01";
@@ -88,7 +88,7 @@ return $str;
       //alert(date1);
      //window.location='stock_card_print.php?date1='+date1+'&date2='+date2;
       //  window.open('stock_card_print.php?date1='+date1+'&date2='+date2);
-       window.open("stock_card_print.php?date1="+date1+"&date2="+date2+"&barcode="+barcode,"_blank","toolbar=no,scrollbars=yes,resizable=yes,width=950,height=600");
+       window.open("stock_card_print.php?date1="+date1+"&date2="+date2+"&barcode="+barcode+"&group_type="+group_type,"_blank","toolbar=no,scrollbars=yes,resizable=yes,width=950,height=600");
 
     }
 
@@ -110,14 +110,18 @@ return $str;
 		<option><?=date("Y")+540?></option>
 		<option><?=date("Y")+539?></option>
 	</select></td>
-	<!-- <tr><td></td><td>ประจำเดือน</td><td>	<select id="month">
-		<option></option>
+	<tr><td></td><td>ประเภท</td><td>	
+    <select id="group_type">
+		<option value="">ทั้งหมด</option>
 	<?
-	for ($i=1; $i<=12 ; $i++) { 
-		print "<option value='$i'>".Month($i)."</option>";
-	}
+  $sql = "SELECT code,detail from group_type  ";
+  $results = mysql_query($sql);
+  while ($row = mysql_fetch_array( $results )) {
+    echo "<option value='$row[code]'>$row[detail]</option>";
+  }
 	?>
-	</select></td></tr> -->
+	</select>
+</td></tr> 
   <tr><td></td><td>พัสดุ</td><td><input type="hidden" id="barcode" value=""><input type="text" id="detail" onkeyup="if(this.value==''){$('#barcode').val('');}" style="font-size: 16px;padding:5px;border:1px solid #c0c0c0;border-radius: 5px;"></td></tr>
 	<tr><td colspan="3" style="text-align: center;"><button style="font-size: 16px;padding:3px 50px;" onclick="search1()">ค้นหา</button></td></tr>
 </table>
@@ -147,8 +151,11 @@ $states.="";
 
 
 ?>
-  <link rel="stylesheet" href="../bootstrap/datepick/jquery-ui.css">
-<script src="../bootstrap/datepick/jquery-ui.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<!--   <link rel="stylesheet" href="../bootstrap/datepick/jquery-ui.css">
+<script src="../bootstrap/datepick/jquery-ui.js"></script> -->
 <script type="text/javascript">
 
             $(function () {

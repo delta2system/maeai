@@ -150,7 +150,7 @@ list($sum_OWH) = Mysql_fetch_row(Mysql_Query($strSQL2));
 
 
 
-echo "<td style='text-align: right;border:1px solid #a2a2a2;'>".recheck_num($sum_OWH)."&nbsp;&nbsp;</td>";
+echo "<td style='text-align: right;border:1px solid #a2a2a2;'><a href='report_department.php?dateday=01-".$_GET["month"]."-".$_GET["year"]."&today=31-".$_GET["month"]."-".$_GET["year"]."&department=".$row["code"]."&group_type=".$rowx[$t]."' target='_blank'>".recheck_num($sum_OWH)."</a>&nbsp;&nbsp;</td>";
 $sum_x[$i]=$sum_x[$i]+$sum_OWH;
 $sum_y[$t]=$sum_y[$t]+$sum_OWH;
 }

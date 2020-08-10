@@ -16,7 +16,7 @@ case '03' : $month = "มี.ค.";break;
 case '04' : $month = "เม.ย.";break;
 case '05' : $month = "พ.ค";break;
 case '06' : $month = "มิ.ย.";break;
-case '07' : $month = "กใค.";break;
+case '07' : $month = "ก.ค.";break;
 case '08' : $month = "ส.ค.";break;
 case '09' : $month = "ก.ย.";break;
 case '10' : $month = "ต.ค.";break;
@@ -98,7 +98,7 @@ return $month;
     </select>
     <select name='m_start'>
        <?
-      for ($i=1; $i <12 ; $i++) { 
+      for ($i=1; $i <=12 ; $i++) { 
         print "<option value='".str_pad($i, 2,"0",STR_PAD_LEFT)."'>".thai_month(str_pad($i, 2,"0",STR_PAD_LEFT))."</option>";
       }
       ?>     
@@ -123,7 +123,7 @@ return $month;
     </select>
     <select name='m_end'>
        <?
-      for ($i=1; $i <12 ; $i++) { 
+      for ($i=1; $i <=12 ; $i++) { 
         print "<option value='".str_pad($i, 2,"0",STR_PAD_LEFT)."'>".thai_month(str_pad($i, 2,"0",STR_PAD_LEFT))."</option>";
       }
       ?>     

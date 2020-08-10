@@ -6,8 +6,16 @@ if(isset($_GET["dateday"]) && isset($_GET["today"])){
 $_SESSION["d_day"] =  substr($_GET["dateday"],6,4)."-".substr($_GET["dateday"],3,2)."-".substr($_GET["dateday"],0,2);
 $_SESSION["d_to"] = substr($_GET["today"],6,4)."-".substr($_GET["today"],3,2)."-".substr($_GET["today"],0,2);
 $_SESSION["d_department"] = $_GET["department"];
+if($_GET["group_type"]){
+
+  $sql = "SELECT code from group_type WHERE row_id = '".$_GET["group_type"]."'";
+  list($code) = Mysql_fetch_row(Mysql_Query($sql));
+
+	$_SESSION["d_group_type"] = $code;
+}
 header('Location: report_department.php');
 }
+
 
 function grouptype($str){
 $sql = "SELECT group_type.detail from stock_product INNER Join group_type on stock_product.group_type = group_type.code where barcode = '$str'  limit 1  ";
@@ -58,7 +66,11 @@ return $month;
 
 <?
 if($_SESSION["d_department"]){
-	$r = "customer_id = '".$_SESSION["d_department"]."' AND status = 'OWH' AND dateday between '".$_SESSION["d_day"]."' AND '".$_SESSION["d_to"]."' GROUP By customer_id";
+	$r = "customer_id = '".$_SESSION["d_department"]."' AND status = 'OWH' AND dateday between '".$_SESSION["d_day"]."' AND '".$_SESSION["d_to"]."' ";
+	if($_SESSION["d_group_type"]){
+	$r .= "AND group_type='".$_SESSION["d_group_type"]."' ";
+	}
+	$r .= "GROUP By customer_id";
 	//$q = "customer_id = '".$g[customer_id]."' AND status = 'OWH' AND dateday between '".$_SESSION["d_day"]."' AND '".$_SESSION["d_to"]."' ";
 }else{
 	$r = "status = 'OWH' AND dateday between '".$_SESSION["d_day"]."' AND '".$_SESSION["d_to"]."' GROUP By customer_id ORDER By customer_id ASC ";
@@ -88,7 +100,16 @@ $dto=$d2[2]." ".thai_month($d2[1])." ".$d2[0];
 	print "</tr></thead><tbody>";
 
 
-    $strSQL = "SELECT * from bill where customer_id = '".$g[customer_id]."' AND status = 'OWH' AND dateday between '".$_SESSION["d_day"]."' AND '".$_SESSION["d_to"]."' ORDER By barcode ASC , dateday ASC";
+    $strSQL = "SELECT * from bill where customer_id = '".$g[customer_id]."' ";
+    if($_SESSION["d_group_type"]){
+	$strSQL .= "AND group_type='".$_SESSION["d_group_type"]."' ";
+	}
+	$strSQL .= "AND status = 'OWH' AND dateday between '".$_SESSION["d_day"]."' AND '".$_SESSION["d_to"]."' ";
+	if($_SESSION["d_group_type"]){
+	$strSQL .="ORDER By dateday ASC";
+	}else{
+	$strSQL .="ORDER By barcode ASC , dateday ASC";
+	}
     $resultSQL = mysql_query($strSQL) or die(mysql_error());
     $pcs_department=array();
     $total_department=array();
@@ -96,7 +117,7 @@ $dto=$d2[2]." ".thai_month($d2[1])." ".$d2[0];
      	
      	$dr=explode("-", $data[dateday]);
 
-    	print "<tr>";
+    	print "<tr style='border-bottom:1px solid #d2d2d2;'>";
     	print "<td style='text-align:center;font-size:13px;padding:5px 0px;'>$data[barcode]</td>";
     	print "<td style='text-align:center;font-size:13px;padding:5px 0px;padding:5px 0px;'>".$dr[2]." ".thai_month($dr[1])." ".$dr[0]."</td>";
     	print "<td style='text-align:center;font-size:13px;padding:5px 0px;'>".grouptype($data[barcode])."</td>";

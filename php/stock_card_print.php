@@ -64,7 +64,16 @@ if($str!=""){
 <body>
 <?
 $arrcol=array();
-if(empty($_GET["barcode"])){
+if($_GET["group_type"]!=""){
+
+$sql = "SELECT barcode,detail from bill where group_type = '".$_GET["group_type"]."' AND dateday between '$date_start' AND '$date_end' GROUP By barcode order By barcode ASC";
+$result = mysql_query($sql);
+
+while ($data = mysql_fetch_assoc($result)){
+array_push($arrcol, $data);
+}
+
+}else if(empty($_GET["barcode"])){
 $sql = "SELECT barcode,detail from bill where dateday between '$date_start' AND '$date_end' GROUP By barcode order By barcode ASC";
 $result = mysql_query($sql);
 

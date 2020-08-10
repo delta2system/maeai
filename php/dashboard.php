@@ -163,15 +163,7 @@ $image_profile="../images/img_profile/".$image_profile;
         </div>
       </div>
       <!-- search form -->
-<!--       <form action="#" method="get" class="sidebar-form">
-        <div class="input-group">
-          <input type="text" name="q" class="form-control" placeholder="Search...">
-          <span class="input-group-btn">
-                <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
-                </button>
-              </span>
-        </div> -->
-      </form>
+
       <!-- /.search form -->
       <!-- sidebar menu: : style can be found in sidebar.less -->
       <ul class="sidebar-menu" data-widget="tree">
@@ -518,6 +510,7 @@ if(array_search("4", $gx)){
     
   </iframe>
     <!-- Main content -->
+    <!-- <div id="show_screen"></div> -->
  </div>
   <!-- /.content-wrapper -->
   <footer class="main-footer">
@@ -606,7 +599,11 @@ $(document).ready(function(){
         height = height - topOffset;
             $("#main_frame").css({"height": height + "px"});
             $("#main_frame").css({"width": (width-300) + "px"});
-           // $("#show_screen").html(width+"x"+height);
+            //$("#show_screen").html(width+"x"+height);
+            if(width<=500){
+              //header("Location: index_mobile.php"); //ส่งไปยังหน้าที่ตอ้งการ
+              window.location='index_mobile.php';
+            }
            // alert(height);
      });
 
