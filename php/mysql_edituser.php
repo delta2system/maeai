@@ -33,7 +33,33 @@ if($_POST["submit"]=="checkbox_edit"){
 		$sql_update = "UPDATE user_account SET menu_code='$f_val' WHERE row_id='".$_POST["row_id"]."' ";
 		$result_update= mysql_query($sql_update) or die(mysql_error());
 
+	}else if($_POST["tbl"]=="dashboard"){
+
+		$sql = "SELECT dashboard_code from user_account where row_id='".$_POST["row_id"]."'  ";
+		list($menu_code) = Mysql_fetch_row(Mysql_Query($sql));
+		$f_val="";
+
+		if($_POST["status"]=="true"){
+			$f_val=$menu_code.",".$_POST["val"];
+
+		}else if($_POST["status"]=="false"){
+			$vx = explode(",",$menu_code);
+			
+			for($i=1;$i<count($vx);$i++){
+				if($_POST["val"]!=$vx[$i]){
+					$f_val.=",".$vx[$i];
+				}
+			}
+		}
+		$sql_update = "UPDATE user_account SET dashboard_code='$f_val' WHERE row_id='".$_POST["row_id"]."' ";
+		$result_update= mysql_query($sql_update) or die(mysql_error());
+
+
 	}
+
+
+
+
 }else if($_POST["submit"]=="save_user"){
 
 $resultArray = array();
@@ -87,6 +113,12 @@ $strSQL .=",stock_edit = '1' ";
 }
 //echo $strSQL;
 $objQuery = mysql_query($strSQL);
+
+}else if($_POST["submit"]=="update_dashboard"){
+
+
+		echo $sql_update = "UPDATE user_account SET dashboard_show='".$_POST['value']."' WHERE row_id='".$_POST["row_id"]."' ";
+		$result_update= mysql_query($sql_update) or die(mysql_error());
 
 }
 ?>

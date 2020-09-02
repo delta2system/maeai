@@ -32,6 +32,23 @@ if($_GET["row_id"]){
 			padding: 5px;
 			font-size: 14px;
 		}
+		.button {
+  background-color: #ffffff; /* Green */
+  border: none;
+ font-weight: bold;
+ border:1px solid #000000;
+  padding: 2px 6px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 12px;
+  font-family: tahoma;
+  top:-185px;
+  margin-left: -25px;
+  cursor: pointer;
+  position: relative;
+  border-radius: 10px;
+}
 	</style>
 	<script type="text/javascript">
 		       function imagespreview(input) {
@@ -82,18 +99,28 @@ if($_GET["row_id"]){
         	$("#total_money").html(addCommas(pcs*price));
         }
 
-        function cha_acq(str){
-        	if(str==5){
-        		$("#donor_display").show();
-        	}else{
-        		$("#donor_display").hide();
-        		$("#donor").val("");
-        	}
+        function del_img(str,img,na){
+        	$(str).hide();
+        	$("#"+img).hide();
+  			var na_img = $("input[name=images_row]").val();
+  			$("input[name=images_row]").val(na_img.replace("#"+na, ""));
+
+
+  			$.ajax({ 
+                url: "store_submit.php" ,
+                type: "POST",
+                data: 'submit=del_images&img_del='+na+'&value='+na_img.replace("#"+na, "")+'&row_id='+$('input[name=xrow_id]').val(),
+            })
+            .success(function(result) {
+            	//alert(result);
+            });
+
+
         }
 
 	</script>
 </head>
-<body>
+<body> 
 	<fieldset style="width:850px;border-color: #4286f4;">
 		<form name="form1" id="form1" method="POST" enctype="multipart/form-data" action="store_submit.php" target="iframe_submit">
 		<div style="color: #619bf9;margin-left:120px ;">เพิ่ม/แก้ไขรายละเอียดครุภัณฑ์</div>
@@ -107,7 +134,10 @@ if($_GET["row_id"]){
 			if($arrCol["images"]){
 				if(count($ims)>0){
 					for ($r=1; $r < count($ims) ; $r++) { 
-						echo "<img src=\"../images/store/$ims[$r]\" style=\"height:200px;\">";
+						list($width, $height, $type, $attr) = getimagesize("../images/store/$ims[$r]");
+						$ha = $height / 200 ; 
+						$wa = $width / $ha ;
+					echo "<img src=\"../images/store/$ims[$r]\" id=\"img_$r\" style=\"height:200px;\"><span class='button' onclick=\"del_img(this,'img_$r','$ims[$r]')\">X</span>";
 					}
 				}else{
 					echo "<img src=\"../images/store/".$arrCol["images"]." style=\"height:200px;\">";
@@ -116,8 +146,11 @@ if($_GET["row_id"]){
 			?>
 				<!-- <img id="blah" src="../images/store/<?=$arrCol["images"]?>" style="height:250px;"> -->
 			</div>
-			<input type="file" name="fileupload[]" style="font-size: 18px;" multiple="multiple"  onchange="imagespreview(this)">
+			
 		</td>
+		<tr>
+			<td colspan="6"><input type="file" name="fileupload[]" style="font-size: 18px;" multiple="multiple"  onchange="imagespreview(this)">
+			<input type="hidden" name="images_row" value="<?=$arrCol["images"]?>"></td>
 		<tr>
 		<td >ประเภท</td>
 		<td><select name="store_type" style="width:200px;">
@@ -166,8 +199,8 @@ if($_GET["row_id"]){
 			}
 			?>
 		</select> </td>
-		<td>การได้มา</td><td colspan="3" >
-			<select name="acquisition" onchange="cha_acq(this.value)">
+		<td>การได้มา</td><td colspan="2">
+			<select name="acquisition">
 			<?
 			$sql = "SELECT * from tbl_acquisition ORDER By row_id  ASC";
 			$result = mysql_query($sql);
@@ -177,7 +210,7 @@ if($_GET["row_id"]){
 			}
 			?>
 			</select>
-		  <span style="display: none;" id="donor_display"> ผู้บริจาค <input type="text" name="donor" id="donor" style="width:160px;" value="<?=$arrCol['donor']?>"></span></td>	</tr>
+		</td></tr>
 	<tr><td>ที่เอกสาร</td><td><input type="text" name="nodocument" value="<?=$arrCol['nodocument']?>" style="width:90%;"></td>
 		<td>วันที่ได้มา</td><td>
 			<?
@@ -208,13 +241,7 @@ if($_GET["row_id"]){
 	<input type="hidden" name="xSubmit" value="update_store">
 	<?}else{?>
 	<input type="hidden" name="xSubmit" value="new_store">
-	<?}
-
-	if($arrCol["donor"]!="" OR $arrCol["acquisition"]=="5"){
-		echo("<script>$('#donor_display').show();</script>");
-	}
-
-	?>
+	<?}?>
 </form>
 <div style="background-color: #4286f4;text-align: right;width:870px;padding:5px;margin-left: 2px;">
 	<?if($_GET["row_id"]){?>

@@ -6,16 +6,18 @@ if($_SESSION["xusername"]==""){
   echo("<script>alert('กรุณาทำการล็อกอินก่อนใช้งาน');window.location='login.php'</script>");
 }
 
-$sql = "SELECT image_profile,email,fullname,menu_code from user_account where username = '".$_SESSION["xusername"]."'  limit 1  ";
-list($image_profile,$email,$fullname,$menu_code) = Mysql_fetch_row(Mysql_Query($sql));
+$sql = "SELECT image_profile,email,fullname,menu_code,dashboard_show from user_account where username = '".$_SESSION["xusername"]."'  limit 1  ";
+list($image_profile,$email,$fullname,$menu_code,$dashboard_show) = Mysql_fetch_row(Mysql_Query($sql));
 if(empty($image_profile)){
 $image_profile='../images/img_profile/no-image.png';
 }else{
 $image_profile="../images/img_profile/".$image_profile;
-
 }
 
+if($dashboard_show==1){
 
+  header('Location: dashboard_icon.php');
+}
 
 ?>
 <!DOCTYPE html>
@@ -62,6 +64,25 @@ $image_profile="../images/img_profile/".$image_profile;
       window.location='login.php?logout=Y';
     }
 
+    function change_dashboard(){
+      var xid = $("#xid").val();
+
+   $.ajax({
+    type: "POST",
+    url: "mysql_edituser.php",
+    data: "submit=update_dashboard&value=1&row_id="+xid,
+    cache: false,
+    success: function(html)
+    {
+    
+     window.location='dashboard.php?';
+    }
+    });
+
+
+
+    }
+
     // function imgload(){
     //   var xu = "admin";
     //   document.getElementById("imgprofile1").src="../images/img_profile/profile_"+xu+".jpg";
@@ -74,15 +95,16 @@ $image_profile="../images/img_profile/".$image_profile;
 <div class="wrapper">
 
   <header class="main-header">
-    <!-- Logo -->
-    <a href="dashboard.php" class="logo">
+    <!-- Logo dashboard_icon.php <ul class="fa fa-th-large"></ul>-->
+    <a href="dashboard.php"  class="logo">
       <!-- mini logo for sidebar mini 50x50 pixels -->
       <!-- <span class="logo-mini"><b>A</b>LT</span> -->
       <span class="logo-mini"><b></b></span>
       <!-- logo for regular state and mobile devices -->
-      <!-- <span class="logo-lg"><b>Admin</b>LTE</span> -->
-      <span class="logo-lg">หน้าหลัก</span>
+      <span class="logo-lg"><b><ul class="fa fa-home"></ul> </b>หน้าหลัก&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+
     </a>
+
     <!-- Header Navbar: style can be found in header.less -->
     <nav class="navbar navbar-static-top">
       <!-- Sidebar toggle button-->
@@ -90,10 +112,29 @@ $image_profile="../images/img_profile/".$image_profile;
         <span class="sr-only">Toggle navigation</span>
       </a>
 
+<!--       
+          <span class="logo-mini" style="color:#ffffff;" onclick="change_dashboard()">
+      <ul class="fa fa-th-large" style="font-size: 18px"></ul>&nbsp;&nbsp; Menu Icon</span>
+ -->
+
+
+
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
+
+          <!-- Messages: style can be found in dropdown.less-->
+          <li class="dropdown" >
+            <a href="#" class="dropdown" onclick="change_dashboard()">
+              <i class="fa fa-th-large"></i> Menu Icon
+             
+            </a>
+          </li>
+
+
+
           <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <input type="hidden" id="xid" value="<?=$_SESSION["xid"]?>">
               <img id='imgprofile1' src="<?=$image_profile?>" class="user-image" alt="User Image">
               <span class="hidden-xs"><?php echo $_SESSION[xfullname]?></span>
             </a>
@@ -163,28 +204,38 @@ $image_profile="../images/img_profile/".$image_profile;
         </div>
       </div>
       <!-- search form -->
-
+<!--       <form action="#" method="get" class="sidebar-form">
+        <div class="input-group">
+          <input type="text" name="q" class="form-control" placeholder="Search...">
+          <span class="input-group-btn">
+                <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
+                </button>
+              </span>
+        </div> -->
+      </form>
       <!-- /.search form -->
       <!-- sidebar menu: : style can be found in sidebar.less -->
+
+
       <ul class="sidebar-menu" data-widget="tree">
-        <li class="header">MAIN NAVIGATION</li>
+      <li class="header">MAIN NAVIGATION</li>
 
 <?
 $cmenu=explode(",",$menu_code); 
+
 $gx=array("");
 for($t=1;$t<=count($cmenu);$t++){
 
-$menu1 = "SELECT menu_group FROM menu_lst where row_id = '".$cmenu[$t]."'  ";
-$result = mysql_query($menu1);
+ $menu1 = "SELECT menu_group FROM menu_lst where row_id = '".$cmenu[$t]."' AND status = '1'  ";
+ $result = mysql_query($menu1);
 //$num = mysql_num_rows($result);
-list($menu_group) = Mysql_fetch_row($result);
+ list($menu_group) = Mysql_fetch_row($result);
 
-if(empty(array_search($menu_group,$gx))){
-array_push($gx, $menu_group);
-}
+ //if(array_search($menu_group,$cmenu)){
+ array_push($gx, $menu_group);
+ //}
 
-}
-
+ }
 
 
 if(array_search("1", $gx)){
@@ -192,14 +243,14 @@ if(array_search("1", $gx)){
 ?>
         <li class="treeview">
           <a href="#">
-            <i class="fa fa-dashboard"></i> <span>ฟอร์ม</span>
+            <i class="fa fa-dashboard"></i> <span>แผนการจัดซื้อประจำปี</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span>
           </a>
           <ul class="treeview-menu">
 <?
-$sql = "SELECT * from menu_lst where menu_group = '1' ORDER By menu_position ASC";
+$sql = "SELECT * from menu_lst where menu_group = '1' AND status = '1' ORDER By menu_position ASC";
 $result = mysql_query($sql);
 while ($row = mysql_fetch_array($result) ) {
 if(array_search($row[row_id], $cmenu)){
@@ -207,7 +258,7 @@ if(array_search($row[row_id], $cmenu)){
 }
 }
 ?>
-<!--             <li><a href="warehouse_in.php" target="main_frame"><i class="fa fa-circle-o"></i>รับพัสดุ</a></li>
+<!--        <li><a href="warehouse_in.php" target="main_frame"><i class="fa fa-circle-o"></i>รับพัสดุ</a></li>
             <li><a href="warehouse_take.php" target="main_frame"><i class="fa fa-circle-o"></i> เบิกพัสดุ</a></li>
             <li><a href="warehouse_in_edit.php" target="main_frame"><i class="fa fa-circle-o"></i> แก้ไขใบรับพัสดุ</a></li>
             <li><a href="warehouse_out_edit.php" target="main_frame"><i class="fa fa-circle-o"></i> แก้ไขใบเบิกพัสดุ</a></li> -->
@@ -218,19 +269,19 @@ if(array_search($row[row_id], $cmenu)){
 
 <?
 }
-if(array_search("5", $gx)){
+if(array_search("2", $gx)){
 
 ?>
         <li class="treeview">
           <a href="#">
-            <i class="fa fa-dashboard"></i> <span>บันทึกข้อความ</span>
+            <i class="fa fa-dashboard"></i> <span>จัดซื้อ/รับเข้าพัสดุ</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span>
           </a>
           <ul class="treeview-menu">
 <?
-$sql = "SELECT * from menu_lst where menu_group = '5' ORDER By menu_position ASC";
+$sql = "SELECT * from menu_lst where menu_group = '2' AND status = '1' ORDER By menu_position ASC";
 $result = mysql_query($sql);
 while ($row = mysql_fetch_array($result) ) {
 if(array_search($row[row_id], $cmenu)){
@@ -250,12 +301,12 @@ if(array_search($row[row_id], $cmenu)){
 <?
 }
 
-if(array_search("2", $gx)){
+if(array_search("3", $gx)){
 ?>
         <li class="treeview">
           <a href="#">
             <i class="fa fa-pie-chart"></i>
-            <span>รายงาน</span>
+            <span>เบิก/จ่าย พัสดุ</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span>
@@ -266,11 +317,31 @@ if(array_search("2", $gx)){
             <li><a href="report_search.php" target="main_frame"><i class="fa fa-circle-o"></i> รายงานเบิกพัสดุ</a></li>
             <li><a href="report_warehouse.php" target="main_frame"><i class="fa fa-circle-o"></i> รายงานพัสดุคงเหลือ</a></li> -->
           <?
-          $sql = "SELECT * from menu_lst where menu_group = '2' ORDER By menu_position ASC";
-          $result = mysql_query($sql);
+
+
+          $sql = "SELECT * from menu_lst where menu_group = '3' AND status = '1' ORDER By menu_position ASC"; 
+         $result = mysql_query($sql);
           while ($row = mysql_fetch_array($result) ) {
           if(array_search($row[row_id], $cmenu)){
+
+
+            if($row["row_id"]==43){
+
+            $stre = "SELECT * FROM tbl_warehousetime";
+            $resulte = mysql_query($stre);
+            while ($datae = mysql_fetch_assoc($resulte)){
+              if($datae[row]==date(w) && $datae[status]==1){
             echo "<li><a href='$row[menu_link]' target=\"main_frame\"><i class=\"fa fa-circle-o\"></i>$row[menu_name]</a></li>";
+            }else if($datae[row]==8 && $datae[status]==1){
+            if(date("Y-m-d")>=$datae[date1] && date("Y-m-d")<=$datae[date2]){
+             echo "<li><a href='$row[menu_link]' target=\"main_frame\"><i class=\"fa fa-circle-o\"></i>$row[menu_name]</a></li>"; 
+            }
+
+          }
+}
+            }else{
+            echo "<li><a href='$row[menu_link]' target=\"main_frame\"><i class=\"fa fa-circle-o\"></i>$row[menu_name]</a></li>";
+          }
           }
           }
           ?>
@@ -278,19 +349,48 @@ if(array_search("2", $gx)){
         </li>
 <?
 }
-if(array_search("3", $gx)){
+if(array_search("4", $gx)){
 ?>
         <li class="treeview">
           <a href="#">
             <i class="fa fa-files-o"></i>
-            <span>การจัดการทั่วไป</span>
+            <span>คลังพัสดุ</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span>
           </a>
           <ul class="treeview-menu">
           <?
-          $sql = "SELECT * from menu_lst where menu_group = '3' ORDER By menu_position ASC";
+          $sql = "SELECT * from menu_lst where menu_group = '4' AND status = '1' ORDER By menu_position ASC";
+          $result = mysql_query($sql);
+          while ($row = mysql_fetch_array($result) ) {
+          if(array_search($row[row_id], $cmenu)){
+            echo "<li><a href='$row[menu_link]' target=\"main_frame\"><i class=\"fa fa-circle-o\"></i>$row[menu_name]</a></li>";
+          }
+          }
+          ?>
+<!--              <li><a href="position_edit.php" target="main_frame"><i class="fa fa-circle-o"></i> เพิ่มตำแหน่งพนักงาน</a></li>
+            <li><a href="personal_edit.php" target="main_frame"><i class="fa fa-circle-o"></i> เพิ่มรายชื่อพนักงาน</a></li>
+            <li><a href="company_edit.php" target="main_frame"><i class="fa fa-circle-o"></i> เพิ่มรายชื่อบริษัทคู่ค้า</a></li>
+            <li><a href="group_type_edit.php" target="main_frame"><i class="fa fa-circle-o"></i> เพิ่มประเภทสินค้า</a></li> -->
+
+          </ul>
+        </li>
+<?
+}
+if(array_search("13", $gx)){
+?>
+        <li class="treeview">
+          <a href="#">
+            <i class="fa fa-files-o"></i>
+            <span>คลังนอก</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+          <?
+          $sql = "SELECT * from menu_lst where menu_group = '13' AND status = '1' ORDER By menu_position ASC";
           $result = mysql_query($sql);
           while ($row = mysql_fetch_array($result) ) {
           if(array_search($row[row_id], $cmenu)){
@@ -312,7 +412,7 @@ if(array_search("6", $gx)){
 <li class="treeview">
           <a href="#">
             <i class="fa fa-files-o"></i>
-            <span>ครุภัณฑ์</span>
+            <span>คลังย่อย</span>
             <span class="pull-right-container">
                <i class="fa fa-angle-left pull-right"></i>
              <!--  <span class="label label-primary pull-right">4</span> -->
@@ -323,7 +423,7 @@ if(array_search("6", $gx)){
 <!--               <li><a href='new_khruphanth.php' target="main_frame"><i class="fa fa-circle-o"></i>เพิ่ม ครุภัณฑ์</a></li>
                <li><a href='report_khruphanth.php' target="main_frame"><i class="fa fa-circle-o"></i>รายงาน ครุภัณฑ์</a></li> -->
           <?
-          $sql = "SELECT * from menu_lst where menu_group = '6' ORDER By menu_position ASC";
+          $sql = "SELECT * from menu_lst where menu_group = '6' AND status = '1' ORDER By menu_position ASC";
           $result = mysql_query($sql);
           while ($row = mysql_fetch_array($result) ) {
           if(array_search($row[row_id], $cmenu)){
@@ -337,12 +437,12 @@ if(array_search("6", $gx)){
 
 <?
 }
-if(array_search("4", $gx)){
+if(array_search("7", $gx)){
 ?>
         <li class="treeview">
           <a href="#">
             <i class="fa fa-files-o"></i>
-            <span>ตั้งค่า</span>
+            <span>ครุภัณฑ์</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
              <!--  <span class="label label-primary pull-right">4</span> -->
@@ -350,7 +450,131 @@ if(array_search("4", $gx)){
           </a>
           <ul class="treeview-menu">
           <?
-          $sql = "SELECT * from menu_lst where menu_group = '4' ORDER By menu_position ASC";
+          $sql = "SELECT * from menu_lst where menu_group = '7' AND status = '1' ORDER By menu_position ASC";
+          $result = mysql_query($sql);
+          while ($row = mysql_fetch_array($result) ) {
+          if(array_search($row[row_id], $cmenu)){
+            echo "<li><a href='$row[menu_link]' target=\"main_frame\"><i class=\"fa fa-circle-o\"></i>$row[menu_name]</a></li>";
+          }
+          }
+          ?>
+
+
+
+          
+<!--             <li><a href="company_setting.php" target="main_frame"><i class="fa fa-circle-o"></i> ชื่อหน่วยงาน</a></li>
+            <li><a href="user_maneger.php" target="main_frame"><i class="fa fa-circle-o"></i> จัดการพนักงาน</a></li> -->
+
+          </ul>
+        </li>
+
+<?}if(array_search("8", $gx)){
+?>
+        <li class="treeview">
+          <a href="#">
+            <i class="fa fa-files-o"></i>
+            <span>บันทึกการซ่อมบำรุง</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+             <!--  <span class="label label-primary pull-right">4</span> -->
+            </span>
+          </a>
+          <ul class="treeview-menu">
+          <?
+          $sql = "SELECT * from menu_lst where menu_group = '8' AND status = '1' ORDER By menu_position ASC";
+          $result = mysql_query($sql);
+          while ($row = mysql_fetch_array($result) ) {
+          if(array_search($row[row_id], $cmenu)){
+            echo "<li><a href='$row[menu_link]' target=\"main_frame\"><i class=\"fa fa-circle-o\"></i>$row[menu_name]</a></li>";
+          }
+          }
+          ?>
+
+
+
+          
+<!--             <li><a href="company_setting.php" target="main_frame"><i class="fa fa-circle-o"></i> ชื่อหน่วยงาน</a></li>
+            <li><a href="user_maneger.php" target="main_frame"><i class="fa fa-circle-o"></i> จัดการพนักงาน</a></li> -->
+
+          </ul>
+        </li>
+
+<?}if(array_search("10", $gx)){
+?>
+        <li class="treeview">
+          <a href="#">
+            <i class="fa fa-files-o"></i>
+            <span>รายงาน</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+             <!--  <span class="label label-primary pull-right">4</span> -->
+            </span>
+          </a>
+          <ul class="treeview-menu">
+          <?
+          $sql = "SELECT * from menu_lst where menu_group = '10' AND status = '1' ORDER By menu_position ASC";
+          $result = mysql_query($sql);
+          while ($row = mysql_fetch_array($result) ) {
+          if(array_search($row[row_id], $cmenu)){
+            echo "<li><a href='$row[menu_link]' target=\"main_frame\"><i class=\"fa fa-circle-o\"></i>$row[menu_name]</a></li>";
+          }
+          }
+          ?>
+
+
+
+          
+<!--             <li><a href="company_setting.php" target="main_frame"><i class="fa fa-circle-o"></i> ชื่อหน่วยงาน</a></li>
+            <li><a href="user_maneger.php" target="main_frame"><i class="fa fa-circle-o"></i> จัดการพนักงาน</a></li> -->
+
+          </ul>
+        </li>
+
+<?}if(array_search("11", $gx)){
+?>
+        <li class="treeview">
+          <a href="#">
+            <i class="fa fa-files-o"></i>
+            <span>จัดการทั่วไป</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+             <!--  <span class="label label-primary pull-right">4</span> -->
+            </span>
+          </a>
+          <ul class="treeview-menu">
+          <?
+          $sql = "SELECT * from menu_lst where menu_group = '11' AND status = '1' ORDER By menu_position ASC";
+          $result = mysql_query($sql);
+          while ($row = mysql_fetch_array($result) ) {
+          if(array_search($row[row_id], $cmenu)){
+            echo "<li><a href='$row[menu_link]' target=\"main_frame\"><i class=\"fa fa-circle-o\"></i>$row[menu_name]</a></li>";
+          }
+          }
+          ?>
+
+
+
+          
+<!--             <li><a href="company_setting.php" target="main_frame"><i class="fa fa-circle-o"></i> ชื่อหน่วยงาน</a></li>
+            <li><a href="user_maneger.php" target="main_frame"><i class="fa fa-circle-o"></i> จัดการพนักงาน</a></li> -->
+
+          </ul>
+        </li>
+
+<?}if(array_search("12", $gx)){
+?>
+        <li class="treeview">
+          <a href="#">
+            <i class="fa fa-files-o"></i>
+            <span>ตั้งค่าระบบ</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+             <!--  <span class="label label-primary pull-right">4</span> -->
+            </span>
+          </a>
+          <ul class="treeview-menu">
+          <?
+          $sql = "SELECT * from menu_lst where menu_group = '12' AND status = '1' ORDER By menu_position ASC";
           $result = mysql_query($sql);
           while ($row = mysql_fetch_array($result) ) {
           if(array_search($row[row_id], $cmenu)){
@@ -510,7 +734,6 @@ if(array_search("4", $gx)){
     
   </iframe>
     <!-- Main content -->
-    <!-- <div id="show_screen"></div> -->
  </div>
   <!-- /.content-wrapper -->
   <footer class="main-footer">
@@ -518,7 +741,7 @@ if(array_search("4", $gx)){
       
       <b>Version</b> 1.1.0
     </div>
-    <strong>Copyright &copy; 2017 <a href="https://www.rsproductsupply.com">Rs Product Supply</a>.</strong> All rights
+    <strong>Copyright © 2017 <a href="https://www.rsproductsupply.com">Rs Product Supply</a>.</strong> All rights
     reserved.
   </footer>
 
@@ -564,49 +787,46 @@ if(array_search("4", $gx)){
 </body>
 </html>
 
-<!--   <script type="text/javascript">
+  <script type="text/javascript">
    //  $(document).ready(function (e) {
 
-      var yx = $("#content-wrapper").height();
-     var wx = $("#content-wrapper").width();
-     $("#main_frame").css({"width":(wx-80)+"px","height": (yx-108)+"px"}); 
-         if(wx<768){
-      $("#main_frame").css({"margin-left":"-170px"}); 
-    }
-   // });
+//       var yx = $("#content-wrapper").height();
+//      var wx = $("#content-wrapper").width();
+//      $("#main_frame").css({"width":(wx-80)+"px","height": (yx-108)+"px"}); 
+//          if(wx<768){
+//       $("#main_frame").css({"margin-left":"-170px"}); 
+//     }
+//    // });
 
-var x=0;
-$(document).ready(function(){
-  $(window).resize(function(){
-    var yx = $("#content-wrapper").height();
-    var wx = $("#content-wrapper").width();
-    $("#main_frame").css({"width":(wx-100)+"px","height": (yx-20)+"px"}); 
-    if(wx<768){
-      $("#main_frame").css({"margin-left":"-170px"}); 
-    }
-    //$("#log").text($(document).width());
-  });
-});
-  </script>
- -->
+// var x=0;
+// $(document).ready(function(){
+//   $(window).resize(function(){
+//     var yx = $("#content-wrapper").height();
+//     var wx = $("#content-wrapper").width();
+//     $("#main_frame").css({"width":(wx-100)+"px","height": (yx-20)+"px"}); 
+//     if(wx<768){
+//       $("#main_frame").css({"margin-left":"-170px"}); 
+//     }
+//     //$("#log").text($(document).width());
+//   });
+// });
 
- <script type="text/javascript">
   $(function() {
     $(window).bind("load resize", function() {
-        var topOffset = 101;
+      //  var wrapper = $("#wrapper").height();
+        var topOffset = 60;
+        var sd = $(".sidebar").width();
         var width = (this.window.innerWidth > 0) ? this.window.innerWidth : this.screen.width;
         var height = ((this.window.innerHeight > 0) ? this.window.innerHeight : this.screen.height) - 1;
         height = height - topOffset;
-            $("#main_frame").css({"height": height + "px"});
-            $("#main_frame").css({"width": (width-300) + "px"});
-            //$("#show_screen").html(width+"x"+height);
-            if(width<=500){
-              //header("Location: index_mobile.php"); //ส่งไปยังหน้าที่ตอ้งการ
-              window.location='index_mobile.php';
-            }
+        width = width - sd - 70;
+        
+
+             $("#main_frame").css({"width":width+"px","height": height+"px"}); 
+          //  $("#show_screen").html(width+"x"+height);
            // alert(height);
      });
 
 });
 
-</script>
+  </script>

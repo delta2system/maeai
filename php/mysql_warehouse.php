@@ -538,6 +538,21 @@ $objQuery = mysql_query($strSQL);
     //print "<br>";
   }
 
+  if (!empty($_POST["customer_id"])){
+
+$strSQL = "INSERT INTO substock SET "; 
+$strSQL .="department = '".$_POST["customer_id"]."' ";
+$strSQL .=",barcode = '".$data["barcode"]."' ";
+$strSQL .=",detail = '".$data["detail"]."' ";
+$strSQL .=",price = '".comma_price($data["price_in"])."' ";
+$strSQL .=",pcs = '".$data["pcs"]."' ";
+$strSQL .=",nobill = '".$new_nobill_system."' ";
+$strSQL .=",expire = '".$data["expire"]."' ";
+$strSQL .=",date_recipt = '".$dateday."' ";
+$objQuery = mysql_query($strSQL);
+
+  }
+
 }
 
   }
@@ -686,7 +701,14 @@ $query = mysql_query($sql_del);
     $sql_supply = "SELECT name from department where code = '".$arrCol[code_supply]."'  limit 1  ";
     list($name_supply) = Mysql_fetch_row(Mysql_Query($sql_supply)); 
   }
-    $sql_persanal = "SELECT name from personal where code = '".$arrCol[code_persanal]."'  limit 1  ";
+
+    $sql_persanal = "SELECT nobill_recipt,persanal from bill where nobill_system = '".$_POST["bill"]."'  limit 1  ";
+    list($nobill_recipt,$persanal) = Mysql_fetch_row(Mysql_Query($sql_persanal));
+
+    $arrCol["nobill_recipt"]=$nobill_recipt;
+    $arrCol["code_persanal"]=$persanal;
+
+    $sql_persanal = "SELECT name from personal where code = '".$persanal."'  limit 1  ";
     list($name_persanal) = Mysql_fetch_row(Mysql_Query($sql_persanal));
 
     $sql_unit = "SELECT unit from stock_product where barcode = '".$arrCol[barcode]."'  limit 1  ";
@@ -1259,6 +1281,158 @@ $result_update= mysql_query($sql_update1) or die(mysql_error());
 
 
 
+
+
+}else if($_POST["submit"]=="return_bill_egp"){
+
+
+
+
+  $strSQL = "SELECT * FROM egp_product WHERE no = '".$_POST["no"]."' AND  pcs > pcs_receive AND store ='in' ";
+  $objQuery = mysql_query($strSQL) or die (mysql_error());
+  $intNumField = mysql_num_fields($objQuery);
+  $resultArray = array();
+  while($obResult = mysql_fetch_array($objQuery))
+  {
+    $arrCol = array();
+    for($i=0;$i<$intNumField;$i++)
+    {
+      $arrCol[mysql_field_name($objQuery,$i)] = $obResult[$i];
+    }
+
+    $arrCol["total"]=($arrCol["price"]*$arrCol["pcs"]);
+    $arrCol["pcs"]=$arrCol["pcs"]-$arrCol["pcs_receive"];
+  //   if($_POST["status"]=="INV"){
+
+    $sql_unit = "SELECT pcs from stock_product where barcode = '".$arrCol[barcode]."'  limit 1  ";
+    list($laststock) = Mysql_fetch_row(Mysql_Query($sql_unit));
+
+     $arrCol["stock_total"]=$laststock+$arrCol["pcs"];
+     $arrCol["laststock"]=$laststock;
+  // }else if($_POST["status"]=="OWH"){
+  //   $arrCol["stock_total"]=$arrCol["laststock"]-$arrCol["pcs"];
+  // }
+
+  //   if($_POST["status"]=="INV"){
+     $sql_supply = "SELECT name from customer_supply where code = '".$arrCol[supply_id]."'  limit 1  ";
+     list($name_supply) = Mysql_fetch_row(Mysql_Query($sql_supply));
+  // }else{
+  //   $sql_supply = "SELECT name from department where code = '".$arrCol[code_supply]."'  limit 1  ";
+  //   list($name_supply) = Mysql_fetch_row(Mysql_Query($sql_supply)); 
+  // }
+  //   $sql_persanal = "SELECT name from personal where code = '".$arrCol[code_persanal]."'  limit 1  ";
+  //   list($name_persanal) = Mysql_fetch_row(Mysql_Query($sql_persanal));
+
+  //   $sql_unit = "SELECT unit from stock_product where barcode = '".$arrCol[barcode]."'  limit 1  ";
+  //   list($unit) = Mysql_fetch_row(Mysql_Query($sql_unit));
+
+  //   $arrCol["unit"]=$unit;
+     $arrCol["name_supply"]=$name_supply;
+  //   $arrCol["name_persanal"]=$name_persanal;
+
+    array_push($resultArray,$arrCol);
+  }
+  
+  echo json_encode($resultArray);
+
+} else if($_POST["submit"]=="save_warehouse_recipt"){
+
+
+
+  $sql = "SELECT nobill_system from bill WHERE status = 'INV' ORDER By nobill_system DESC  limit 1  ";
+  list($nobill_system) = Mysql_fetch_row(Mysql_Query($sql));
+  if(empty($nobill_system) || substr($nobill_system,4,4)!=((date("y")+43).date("m"))){
+  $new_nobill_system ="INV-".(date("y")+43).date("m")."00001"; 
+  }else{
+  $new_bill=substr($nobill_system,8)+1;
+  $new_nobill_system = "INV-".(date("y")+43).date("m").str_pad($new_bill, 5,"0",STR_PAD_LEFT);
+  }
+
+
+for ($b=1; $b <= count($_POST["barcode"]); $b++) {
+
+  $sql = "SELECT bill_receive from egp_product WHERE  barcode = '".$_POST["barcode"][$b]."' AND no = '".$_POST["order_bill"]."'  limit 1  ";
+  list($bill_receive) = Mysql_fetch_row(Mysql_Query($sql));
+
+
+$sql_update = "UPDATE egp_product SET";
+$sql_update .=" pcs_receive='".$_POST["pcs"][$b]."' ";
+$sql_update .= ",bill_receive = '".$bill_receive."#".$new_nobill_system."@".$_POST["pcs"][$b]."' ";
+$sql_update .="WHERE barcode = '".$_POST["barcode"][$b]."' AND no = '".$_POST["order_bill"]."'";
+$result_update= mysql_query($sql_update) or die(mysql_error());
+
+   
+$sql_pcs = "SELECT detail,pcs from stock_product where barcode = '".$_POST["barcode"][$b]."' AND price_in = '".comma_price($_POST["price"][$b])."'  limit 1  ";
+$num_pcs = mysql_num_rows(Mysql_Query($sql_pcs));
+if($num_pcs){
+list($detail,$laststock) = Mysql_fetch_row(Mysql_Query($sql_pcs));
+
+$sql_update = "UPDATE stock_product SET pcs='".($laststock+$_POST["pcs"][$b])."',lastin = '".date("Y-m-d H:s:i")."' WHERE barcode = '".$_POST["barcode"][$b]."' AND price_in = '".comma_price($_POST["price"][$b])."'";
+$result_update= mysql_query($sql_update) or die(mysql_error());
+
+}else{
+  $laststock=0;
+
+$sql_pcs = "SELECT group_type,unit from stock_product where barcode = '".$_POST["barcode"][$b]."' limit 1  ";
+list($re_group_type,$re_unit) = Mysql_fetch_row(Mysql_Query($sql_pcs));
+
+$strSQL = "INSERT INTO stock_product SET "; 
+$strSQL .="barcode = '".$_POST["barcode"][$b]."' ";
+$strSQL .=",detail = '".$detail."' ";
+$strSQL .=",price_in = '".comma_price($_POST["price"][$b])."' ";
+$strSQL .=",group_type = '".$re_group_type."' ";
+$strSQL .=",pcs = '".$_POST["pcs"][$b]."' ";
+$strSQL .=",unit = '".$re_unit."' ";
+$strSQL .=",lastin = '".date("Y-m-d H:i:s")."' ";
+$strSQL .=",lastupdate = '".date("Y-m-d H:i:s")."' ";
+$objQuery = mysql_query($strSQL);
+
+}
+
+$dateday=substr($_POST["dateday"],6,4)."-".substr($_POST["dateday"],3,2)."-".substr($_POST["dateday"],0,2);
+
+$strSQL = "INSERT INTO bill SET "; 
+$strSQL .="nobill_system = '".$new_nobill_system."' ";
+$strSQL .=",nobill = '".$_POST["nobill"]."' ";
+$strSQL .=",nobill_recipt = '".$_POST["order_bill"]."' ";
+$strSQL .=",dateday = '".$dateday."' ";
+$strSQL .=",lasttime = '".date("H:i:s")."' ";
+$strSQL .=",customer_id = '".$_POST["code_supply"]."' ";
+$strSQL .=",customer_name = '".$_POST["name_supply"]."' ";
+$strSQL .=",persanal = '".$_POST["code_persanal"]."' ";
+$strSQL .=",group_type = '".grouptype($_POST["barcode"][$b])."' ";
+$strSQL .=",barcode = '".$_POST["barcode"][$b]."' ";
+$strSQL .=",detail = '".$detail."' ";
+$strSQL .=",laststock = '".$laststock."' ";
+$strSQL .=",pcs = '".$_POST["pcs"][$b]."' ";
+$strSQL .=",price = '".comma_price($_POST["price"][$b])."' ";
+$strSQL .=",pcs_stock = '".($laststock+$_POST["pcs"][$b])."' ";
+//$strSQL .=",other = '".$obResult["other"]."' ";
+$strSQL .=",status = 'INV' ";
+$strSQL .=",officer = '".$_SESSION["xusername"]."' ";
+$objQuery = mysql_query($strSQL);
+
+
+  }
+
+  
+
+  $resultArray = array();
+  $arrCol = array();
+
+  if(mysql_error()){
+  $arrCol["msg"] = mysql_error();
+  $arrCol["status"] = "false";
+  }else{
+
+  $arrCol["nobill"] = $new_nobill_system;
+  $arrCol["msg"] = "บันทึกเรียบร้อย";
+  $arrCol["status"] = "true";
+  }
+    array_push($resultArray,$arrCol);
+
+  
+  echo json_encode($resultArray);
 
 
 }

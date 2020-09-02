@@ -146,6 +146,8 @@ include("connect.inc");
 
 
 		}
+
+
 	</script>
 </head>
 <body>
@@ -170,9 +172,38 @@ include("connect.inc");
 			</select></td></tr>
 
 	<tr><td style="margin-top:20px;color:#3385ff;border-bottom: 1px solid #a0a0a0;padding: 5px 0px; ">แก้ไข สต็อก :</td><td style="border-bottom: 1px solid #a0a0a0;"><div style='padding:3px 10px;'><input type="checkbox" name="edit_stock" id="edit_stock" <?if($arrCol[stock_edit]=="1"){ echo "checked";}?> onclick="checkbox_val('edit_stock',this)" ></div></td></tr>
+
+	<tr><td style="margin-top:20px;color:#3385ff;border-bottom: 1px solid #a0a0a0;padding: 5px 0px; ">แก้ไข สต็อกแผนก :</td><td style="border-bottom: 1px solid #a0a0a0;"><div style='padding:3px 10px;'><input type="checkbox" name="substock_edit" id="substock_edit" <?if($arrCol[substock_edit]=="1"){ echo "checked";}?> onclick="checkbox_val('substock_edit',this)" ></div></td></tr>
+
+	<tr><td style="margin-top:20px;color:#3385ff;border-bottom: 1px solid #a0a0a0;padding: 5px 0px; ">อนุญาติจ่ายพัสดุ :</td>
+		<td style="border-bottom: 1px solid #a0a0a0;"><div style='padding:3px 10px;'>
+			<input type="checkbox" name="bill_out_edit" id="bill_out_edit" <?if($arrCol[bill_out_edit]=="1"){ echo "checked";}?> onclick="checkbox_val('bill_out_edit',this)" >
+		</div></td></tr>
+
+	<tr><td style="margin-top:20px;color:#3385ff;border-bottom: 1px solid #a0a0a0;padding: 5px 0px; ">อนุญาติคืนพัสดุ :</td>
+		<td style="border-bottom: 1px solid #a0a0a0;"><div style='padding:3px 10px;'>
+			<input type="checkbox" name="bill_in_edit" id="bill_in_edit" <?if($arrCol[bill_in_edit]=="1"){ echo "checked";}?> onclick="checkbox_val('bill_in_edit',this)" >
+		</div></td></tr>
+	<tr><td style="margin-top:20px;color:#3385ff;border-bottom: 1px solid #a0a0a0;padding: 5px 0px; ">กระดานข่าว :</td>
+		<td style="border-bottom: 1px solid #a0a0a0;"><div style='padding:3px 10px;'>
+
+			<!-- <input type="checkbox" name="bill_in_edit" id="bill_in_edit" <?if($arrCol[bill_in_edit]=="1"){ echo "checked";}?> onclick="checkbox_val('bill_in_edit',this)" > -->
+			<?
+			$dashboard_code = explode(",", $arrCol["dashboard_code"]);
+			?>
+			<div style='padding:3px 10px;'><input type='checkbox'  id='dashboard1' value='1'  onclick="checkbox_val('dashboard',this)" <?if(array_search("1", $dashboard_code)){ echo "checked";}?>>รายการรอเบิกพัสดุ</div>
+			<div style='padding:3px 10px;'><input type='checkbox'  id='dashboard1' value='2'  onclick="checkbox_val('dashboard',this)" <?if(array_search("2", $dashboard_code)){ echo "checked";}?>>รายการรอคืนพัสดุ</div>
+			<div style='padding:3px 10px;'><input type='checkbox'  id='dashboard1' value='3'  onclick="checkbox_val('dashboard',this)" <?if(array_search("3", $dashboard_code)){ echo "checked";}?>>รายการรอรับเข้าพัสดุ</div>
+			<div style='padding:3px 10px;'><input type='checkbox'  id='dashboard1' value='4'  onclick="checkbox_val('dashboard',this)" <?if(array_search("4", $dashboard_code)){ echo "checked";}?>>สินค้าคงคลังต่ำกว่ากำหนด</div>
+			<div style='padding:3px 10px;'><input type='checkbox'  id='dashboard1' value='5'  onclick="checkbox_val('dashboard',this)" <?if(array_search("5", $dashboard_code)){ echo "checked";}?>>พัสดุใกล้หมดอายุ</div>
+			<div style='padding:3px 10px;'><input type='checkbox'  id='dashboard1' value='6'  onclick="checkbox_val('dashboard',this)" <?if(array_search("6", $dashboard_code)){ echo "checked";}?>>ทะเบียนแจ้งซ่อม</div>
+
+		</div></td></tr>
+
+
 	<tr><td style="margin-top:20px;color:#3385ff;vertical-align: top;text-align: right;border-bottom: 1px solid #a0a0a0; ">เมนู :</td><td style="border-bottom: 1px solid #a0a0a0;">
 	<?
-		if($arrCol[menu_code]==""){$arrCol[menu_code]=",1,2,5,8";}
+		if($arrCol[menu_code]==""){$arrCol[menu_code]=",43,44,45";}
 
 		$mu=explode(",",$arrCol[menu_code]);
 		$sql_o = "SELECT * FROM menu_lst ORDER By menu_group ASC,menu_position ASC";

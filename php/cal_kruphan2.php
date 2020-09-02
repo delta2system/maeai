@@ -64,7 +64,7 @@ $total[8]=array("");
 $total[9]=array("");
 $total_3=array("");
 $total_4=array("");
-$sql="SELECT * FROM store WHERE store_type = '$data[code]' AND ( (daterecipt < '2563-01-01' AND priceofsets >= 5000) OR (priceofsets >= 10000 AND daterecipt > '2563-01-01')) ORDER By daterecipt ASC ";
+$sql="SELECT * FROM store WHERE store_type = '$data[code]' AND ( (daterecipt < '2563-01-01' AND priceofsets < 5000) OR (priceofsets < 10000 AND daterecipt > '2563-01-01')) ORDER By daterecipt ASC ";
 $result = mysqli_query($con,$sql);
 $num_r = mysqli_num_rows($result);
 if($num_r){

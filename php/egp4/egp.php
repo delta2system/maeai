@@ -58,7 +58,7 @@ $supply_addres = $data["supply_addres"];
 $supply_phone = $data["supply_phone"];
 $supply_tax = $data["supply_tax"];
 
-$product = $data["product"];
+$product = num_convertthai($data["product"]);
 $no = $data["no"];
 $no_requat = $data["no_requat"];
 
@@ -207,7 +207,7 @@ $('.btn').show();
 <div style="margin-left:60px;margin-top: 50px;">ส่วนราชการ  <div class="div_edit" id="div_edit1" style="width:580px;height:30px;border-bottom:1px solid #000000;margin-left: 90px;margin-top:-28px;"> งานพัสดุ กลุ่มอำนวยการ<?=$co[company_name]?></div> </div>
 <div style="margin-left:60px;margin-top: 3px;">ที่ <div class="div_edit" id="div_edit2" style="width:300px;height:30px;border-bottom:1px solid #000000;margin-left: 40px;margin-top:-28px;"> <?=$no?> </div> 
 <div style="margin-left: 340px;margin-top: -28px;"> วันที่  <div class="div_edit" id="div_edit3" style="width:300px;height:30px;border-bottom:1px solid #000000;margin-left: 30px;margin-top:-28px;text-align: center;"> <?=$dateday1?></div> </div> </div>
-<div style="margin-left:60px;">เรื่อง  <div class="div_edit" id="div_edit4" style="width:630px;height:30px;border-bottom:1px solid #000000;margin-left: 40px;margin-top:-28px;"> รายงานขอซื้อ</div> </div>
+<div style="margin-left:60px;">เรื่อง  <div class="div_edit" id="div_edit4" style="width:630px;height:30px;border-bottom:1px solid #000000;margin-left: 40px;margin-top:-28px;"> รายงานขอซื้อ/ขอจ้าง</div> </div>
 
 <div style="margin-left:60px;margin-top:20px;">เรียน  <div class="div_edit" id="div_edit5" style="width:630px;height:30px;margin-left: 40px;margin-top:-28px;"> ผู้ว่าราชการจังหวัดเชียงใหม่ (ผู้อำนวยการ<?=$co[company_name]?>ปฏิบัติรายการแทนผู้ว่าราชการจังหวัดเชียงใหม่)</div> 
 </div>
@@ -216,15 +216,15 @@ $('.btn').show();
 วิธีเฉพาะเจาะจง ซึ่งมีรายละเอียด ดังต่อไปนี้  
 </div>
 
-   <div class="div_edit" id="div_edit7" style="margin-left: 134px;">๑. เหตุผลความจำเป็นที่ต้องซื้อ</div>
+   <div class="div_edit" id="div_edit7" style="margin-left: 134px;">๑. เหตุผลความจำเป็นที่ต้องซื้อ/จ้าง</div>
    <div class="div_edit" id="div_edit8" style="margin-left: 154px;">เพื่อใช้ภายในหน่วยงาน และสำรองคลัง<?=$co[company_name]?></div>
    <div class="div_edit" id="div_edit9" style="margin-left: 134px;">๒. รายละเอียดของ<?=str_replace("จัดซื้อ", "", $pcs_detail);?> คือ</div>
    <div class="div_edit" id="div_edit10" style="margin-left: 154px;">
     <?=$product?>
    </div>
-   <div class="div_edit" id="div_edit11" style="margin-left: 134px;">๓. ราคากลางของพัสดุที่จะซื้อจำนวน <?=$total_bath?> บาท (<?=$total_bath_word?>)</div>
+   <div class="div_edit" id="div_edit11" style="margin-left: 134px;">๓. ราคากลางของพัสดุที่จะซื้อ/จ้างจำนวน <?=$total_bath?> บาท (<?=$total_bath_word?>)</div>
 
-   <div class="div_edit" id="div_edit12" style="margin-left: 134px;">๔. วงเงินที่จะซื้อ</div>
+   <div class="div_edit" id="div_edit12" style="margin-left: 134px;">๔. วงเงินที่จะซื้อ/จ้าง</div>
    <div class="div_edit" id="div_edit13" style="margin-left: 154px;">
    เงินนอกงบประมาณจาก จำนวน <?=$total_bath?> บาท (<?=$total_bath_word?>)
    </div>
@@ -233,7 +233,7 @@ $('.btn').show();
    <div class="div_edit" id="div_edit15" style="margin-left: 154px;">
    เงินนอกงบประมาณจาก <?=$total_bath?> บาท (<?=$total_bath_word?>)
    </div>
-   <div class="div_edit" id="div_edit16" style="margin-left: 134px;">๖. วิธีที่จะซื้อ และเหตุผลที่ต้องซื้อ</div>
+   <div class="div_edit" id="div_edit16" style="margin-left: 134px;">๖. วิธีที่จะซื้อ/จ้าง และเหตุผลที่ต้องซื้อ/จ้าง</div>
    <div class="div_edit" id="div_edit17" style="margin-left: 154px;">
    ดำเนินการโดยวิธีเฉพาะเจาะจงเนื่องจากการจัดซื้อจัดจ้างพัสดุที่มีการผลิต จำหน่าย ก่อสร้าง หรือให้บริการทั่วไป &nbsp;&nbsp;และมีวงเงินในการจัดซื้อจัดจ้างครั้งหนึ่งไม่เกินวงเงินตามที่กำหนดในกฏกระทรวง
    </div>
@@ -245,10 +245,10 @@ $('.btn').show();
    <div class="div_edit" id="div_edit21" style="margin-left: 154px;">
    ผู้แต่งตั้งผู้ตรวจรับพัสดุ
    </div>
-   <div class="div_edit" id="div_edit22" style="margin-left: 134px;">๙. อำนาจในการอนุมติให้ดำเนินการในครั้งนี้ เป็นอำนาจของผู้อำนวยการ<?=$co[company_name]?> ตามคำสั่ง จังหวัดเชียงใหม่ &nbsp;&nbsp;&nbsp;&nbsp;ที่ ๔๙๖๐/๒๕๖๑ ลงวันที่ ๒๖ พฤศจิกายน ๒๕๖๑</div>
+   <div class="div_edit" id="div_edit22" style="margin-left: 134px;">๙.  อำนาจในการอนุมัติให้ดำเนินการในครั้งนี้ เป็นอำนาจของผู้อำนวยการ<?=$co[company_name]?> ตามคำสั่งจังหวัดเชียงใหม่ ที่ ๔๕๘๕/๒๕๖๒ ลงวันที่ ๑ ตุลาคม ๒๕๖๒</div>
 
    <div class="div_edit" id="div_edit23" style="margin-left: 134px;margin-top: 30px;">จึงเรียนมาเพื่อโปรดพิจารณา หากเห็นชอบขอได้โปรด</div>
-   <div class="div_edit" id="div_edit24" style="margin-left: 154px;">๑. อนุมัติให้ดำเนินการ ตามรายละเอียดในรายงานขอซื้อดังกล่าวข้างต้น</div>
+   <div class="div_edit" id="div_edit24" style="margin-left: 154px;">๑. อนุมัติให้ดำเนินการ ตามรายละเอียดในรายงานขอซื้อ/ขอจ้างดังกล่าวข้างต้น</div>
    <div class="div_edit" id="div_edit25" style="margin-left: 154px;">๒. ลงนามในคำสั่งแต่งตั้งผู้ตรวจรับพัสดุ
  </div> 
 
@@ -308,7 +308,7 @@ $('.btn').show();
 
 
 <div style="margin:0px auto;width:210mm;height:295mm;background-color: #ffffff;overflow: hidden" class="page_breck">
-<img src="../../images/publish.jpg" style="width:205mm;" ;>
+<img src="../../images/<?=$data[publish]?>" style="width:205mm;" ;>
 </div>
 <!-- แสดงความบริสุทธิ์-->
 <div style="margin:0px auto;width:210mm;height:295mm;background-color: #ffffff;" class="page_breck">
@@ -362,9 +362,9 @@ $('.btn').show();
 <div style="margin-left:60px;margin-top: 50px;">ส่วนราชการ  <div class="div_edit" id="div_edit51" style="width:580px;height:30px;border-bottom:1px solid #000000;margin-left: 90px;margin-top:-28px;"> งานพัสดุ กลุ่มอำนวยการ<?=$co[company_name]?></div> </div>
 <div style="margin-left:60px;margin-top: 3px;">ที่ <div class="div_edit" id="div_edit52" style="width:300px;height:30px;border-bottom:1px solid #000000;margin-left: 40px;margin-top:-28px;"> <?=$no?></div> 
 <div style="margin-left: 340px;margin-top: -28px;"> วันที่  <div class="div_edit" id="div_edit53" style="width:300px;height:30px;border-bottom:1px solid #000000;margin-left: 30px;margin-top:-28px;text-align: center;"> <?=$dateday2?></div> </div> </div>
-<div style="margin-left:60px;">เรื่อง  <div class="div_edit" id="div_edit54" style="width:630px;height:30px;border-bottom:1px solid #000000;margin-left: 40px;margin-top:-28px;"> รายงานขอซื้อ</div> </div>
+<div style="margin-left:60px;">เรื่อง  <div class="div_edit" id="div_edit54" style="width:630px;height:30px;border-bottom:1px solid #000000;margin-left: 40px;margin-top:-28px;"> รายงานขอซื้อ/ขอจ้าง</div> </div>
 
-<div style="margin-left:60px;margin-top:20px;">เรียน  <div class="div_edit" id="div_edit55" style="width:630px;height:30px;margin-left: 40px;margin-top:-28px;"> ผู้ว่าราชการจังหวัดเชียงใหม่ (ผู้อำนวยการ<?=$co[company_name]?>ปฏิบัติรายการแทนผู้ว่าราชการจังหวัดเชียงใหม่)</div>
+<div style="margin-left:60px;margin-top:20px;">เรียน  <div class="div_edit" id="div_edit55" style="width:630px;height:60px;margin-left: 40px;margin-top:-32px;"> ผู้ว่าราชการจังหวัดเชียงใหม่ (ผู้อำนวยการ<?=$co[company_name]?>ปฏิบัติรายการแทนผู้ว่าราชการจังหวัดเชียงใหม่)</div>
 </div>
 <div class="div_edit" id="div_edit56" style="margin-left:130px;">ขอรายงานผลการพิจารณา<?=str_replace("จัด", "", $pcs_detail);?> โดยวิธีเฉพาะเจาะจง ดังนี้</div>
 
@@ -426,7 +426,7 @@ $('.btn').show();
 <div class="div_edit" id="div_edit73" style="width:270px;height:60px;text-align: center;border:0px solid #ffee00;margin-left: 310px;margin-top: 60px;">
   ประกาศ ณ วันที่ <?=$dateday2?><br>
 </div>
-<div class="div_edit" id="div_edit74" style="width:270px;height:120px;text-align: center;border:0px solid #ffee00;margin-left: 310px;">
+<div class="div_edit" id="div_edit74" style="width:350px;height:120px;text-align: center;border:0px solid #ffee00;margin-left: 270px;">
   <br>
 <?=$director?>
 </div>

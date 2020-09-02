@@ -109,6 +109,8 @@ function return_data(id){
           
                 var obj = jQuery.parseJSON(result);      
                 $.each(obj, function(key, val) {
+          
+                  
                     $("#dateday").val(val["date_convert"]);
                     $("#times").val(val["times"]);
                     $("#department").val(val["department"]);
@@ -249,7 +251,7 @@ function return_data(id){
 
     </tr>
       <tr><td>อุปกรณ์ที่ส่งซ่อม</td><td colspan="3"><input type="text" id="product" name="product" class="form-control"></td></tr>
-      <tr><td>ยี่ห้อ/รุ่น</td><td><input type="text" id="model" name="model" class="form-control" placeholder="ถ้ามี"></td><td>Serial Number</td><td><input type="text" id="serial" class="form-control" placeholder="ถ้ามี"></td></tr>
+      <tr><td>ยี่ห้อ/รุ่น</td><td><input type="text" id="model" name="model" class="form-control" placeholder="ถ้ามี"></td><td>Serial Number</td><td><input type="text" name="serial" id="serial" class="form-control" placeholder="ถ้ามี"></td></tr>
       <tr><td>เลขครุภัณฑ์</td><td><input type="text" id="no" name="no" class="form-control" placeholder="ถ้ามี"></td><td>ประเภท</td><td>
         <select class="form-control" id="type" name="type">
 <!--           <option value="4">ไฟฟ้า-อิเล็กทรอนิกส์ </option><option value="3">เครื่องมือแพทย์</option><option value="2">ประปา-น้ำเสีย-สุขภัณฑ์</option><option value="1">อาคารสถานที่-ครุภัณฑ์</option>

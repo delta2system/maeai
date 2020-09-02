@@ -149,23 +149,22 @@ function number_convert($str){
 		<?
 		//}}
 
-			$ims=explode("#",$arrCol["images"]);
+				$ims=explode("#",$arrCol["images"]);
 			if($arrCol["images"]){
 				if(count($ims)>0){
 					for ($r=1; $r < count($ims) ; $r++) { 
-					      $str_text = "../images/store/$ims[$r]";
-      				      if (file_exists($str_text)){
-      				      echo "<img src=\"../images/store/$ims[$r]\" style=\"height:80px;cursor:pointer;\" onclick=\"window.open('../images/store/$ims[$r]','_blank')\">";
-      				      }
+						echo "<img src=\"../images/store/$ims[$r]\" style=\"height:80px;\">";
 					}
 				}else{
-					$str_text = "../images/store/".$arrCol["images"];
-					if (file_exists($str_text)){
-      				      echo "<img src=\"../images/store/".$arrCol["images"]."\" style=\"height:80px;cursor:pointer;\" onclick=\"window.open('../images/store/".$arrCol["images"]."','_blank')\">";
-      				      }
+					echo "<img src=\"../images/store/".$arrCol["images"]." style=\"height:80px;\">";
 				}
 			}
-
+			if($arrCol['images']){
+ 		$str_text = "../images/store/".$arrCol['images'];
+      	if (file_exists($str_text)){
+      
+			echo "<img  src='../images/store/".$arrCol['images']."' style='height:80px;' onclick=\"img_review('".$arrCol['images']."')\">";
+		}}
 		?>
 		</div>
 		</td> 
@@ -252,13 +251,9 @@ function number_convert($str){
 		if($_GET["row_id"] && $khruphan_edit==1){?>
 		<button style="font-size: 14px;" onclick="window.location='new_khruphanth.php?row_id=<?=$_GET["row_id"]?>'">แก้ไข ครุภัณฑ์</button>&nbsp;&nbsp;
 		<button style="font-size: 14px;" onclick="cancel_store('<?=$_GET["row_id"]?>','<?=$arrCol["attribute"]?>')">ยกเลิก ครุภัณฑ์</button>&nbsp;&nbsp;
-		
+		<button style="font-size: 14px;" onclick="kruphan_control('<?=$_GET["row_id"]?>')">ทะเบียนคุมทรัพย์สิน</button>&nbsp;&nbsp;
 		<button style="font-size: 14px;" onclick="fix_reprot('<?=$_GET["row_id"]?>')">บันทึกการซ่อมบำรุง ครุภัณฑ์</button>&nbsp;&nbsp;
 		<button style="font-size: 14px;" onclick="hirefix('<?=$_GET["row_id"]?>')">แจ้งซ่อม ครุภัณฑ์</button>
-		<?}
-		if($_GET["row_id"]){
-		?>
-		<button style="font-size: 14px;" onclick="kruphan_control('<?=$_GET["row_id"]?>')">ทะเบียนคุมทรัพย์สิน</button>&nbsp;&nbsp;
 		<?}?>
 	</td></tr>
 </table>

@@ -5,6 +5,14 @@ if($_SESSION["xusername"]==""){
   echo("<script>alert('กรุณาทำการล็อกอินก่อนใช้งาน');window.location='login.php'</script>");
 }
 
+function return_position($str){
+
+  $sql = "SELECT position_detail from position_personal WHERE code = '$str'  ";
+  list($position) = Mysql_fetch_row(Mysql_Query($sql));
+
+	return $position;
+}
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -80,7 +88,7 @@ if($_SESSION["xusername"]==""){
         <div style="width:300px;text-align: center;padding-top:30px;"><span class="menu_bt" onclick="save_profile()">บันทึก</span></div>
 	</div> --><?
 	//$date=;echo ;
-$sql = "SELECT * from user_account ";
+$sql = "SELECT * from user_account WHERE row_id > 1";
 $result = mysql_query($sql);
 $arrCol=array();
 while ($row = mysql_fetch_array($result) ) {
@@ -100,7 +108,7 @@ while ($row = mysql_fetch_array($result) ) {
 	if($row[status]==1){ $status="checked";}else{$status="";}
 print "<tr class='cursor'><td style='border-bottom:1px solid #c0c0c0;text-align:left;font-size:14;padding:8px 0px;' onclick=\"edit_user('$row[row_id]')\"><img src='$str_img' style='width:30px;border-radius:15px;vertical-align: middle;' > $row[username]</td>".
 	  "<td style='border-bottom:1px solid #c0c0c0;font-size:14;padding:8px 0px;' onclick=\"edit_user('$row[row_id]')\">&nbsp;&nbsp;$row[fullname]</td>".
-	  "<td style='border-bottom:1px solid #c0c0c0;text-align:center;font-size:14;padding:8px 0px;' onclick=\"edit_user('$row[row_id]')\">$row[position]</td>".
+	  "<td style='border-bottom:1px solid #c0c0c0;text-align:center;font-size:14;padding:8px 0px;' onclick=\"edit_user('$row[row_id]')\">".return_position($row[position])."</td>".
 	  "<td style='border-bottom:1px solid #c0c0c0;text-align:center;font-size:14;padding:8px 0px;' onclick=\"edit_user('$row[row_id]')\">".date_format(date_create($row[regis_start]),"d/m/Y H:i:s")."</td>".
 	  "<td style='border-bottom:1px solid #c0c0c0;text-align:center;font-size:14;padding:8px 0px;' onclick=\"edit_user('$row[row_id]')\">".date_format(date_create($row[last_login]),"d/m/Y H:i:s")."</td>".
 	  "<td style='border-bottom:1px solid #c0c0c0;text-align:center;font-size:14;padding:8px 0px;'><input type='checkbox' name='checkid' $status onclick=\"status('$row[row_id]',this)\" style='cursor:pointer;'></td></tr>";

@@ -1,6 +1,6 @@
 <?
 session_start();
-include("../../php/connect.inc");
+include("../connect.inc");
 $sql = "SELECT * from tbl_company WHERE 1";
 $result = mysql_query($sql);
 while ($row = mysql_fetch_array($result) ) {
@@ -323,7 +323,7 @@ function thaiNumber(num){
  <div style="margin:0px auto;width:210mm;background-color: #ffffff;padding: 20px;" class="page_breck">
 <div class="box box-warning">
             <div class="box-header with-border">
-              <h3 class="box-title">PROCUREMENT ใบจัดซื้อจัดจ้าง </h3>
+              <h3 class="box-title">PROCUREMENT ใบจัดซื้อจัดจ้าง นอกคลัง</h3>
             </div>
             <!-- /.box-header -->
             <div class="box-body">
@@ -361,6 +361,21 @@ function thaiNumber(num){
                     //   echo "<option value='$sty[code]'>$sty[detail]</option>";
                     // }
 
+
+                    ?>
+                  </select>
+                </div>
+                                <div class="form-group">
+                  <label>แผนก</label>
+                  <!-- <input type="text" name="dateday2" class="form-control" value="<?=$data[dateday2]?>"> -->
+                  <select class="form-control" name="department">
+                    <option></option>
+                    <?
+                    $strSQL_store="SELECT * FROM department WHERE 1";
+                    $result_store=mysql_query($strSQL_store);
+                    while ($sty = mysql_fetch_array($result_store)) {
+                      echo "<option value='$sty[row_id]'>$sty[name]</option>";
+                    }
 
                     ?>
                   </select>
@@ -474,6 +489,10 @@ function thaiNumber(num){
                     <input type="submit" name="submit" class="btn btn-success" value="ทำใบจัดซื้อจัดจ้าง">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<li  class="btn btn-info" onclick="$('#search_popup').show()">ค้นหาจัดซื้อจัดจ้างเดิม</li>
                 </div>
               </form>
+              <input type="file" name="fileupload" id="fileupload" onchange="imagespreview(this)"> <li class="btn btn-success" onclick="upload_publish()">Upload</li>
+              <br>
+              <img id="blah" src="../../images/<?=$data[publish]?>" style="height:400px;" onclick="window.open('../../images/<?=$data[publish]?>');">
+             
             </div>
             <!-- /.box-body -->
           </div>
@@ -507,14 +526,25 @@ function thaiNumber(num){
 
 
 $states="";
+$sql = "SELECT detail,barcode,unit,pcs,price from egp_product  where store = 'out' GROUP By barcode ";
+$results = mysql_query($sql);
+while ($row = mysql_fetch_array( $results )) {
+
+  $s++;
+  if($s>1){  $states.=",";  }
+  $states.="{value:\"".str_ireplace("&#39;","'",$row[detail])."\",detail:\"$row[detail]\",unit:\"$row[unit]\",id:\"$row[barcode]\",pcs:\"$row[pcs]\",price:\"$row[price]\"}";
+}
+
 $sql = "SELECT detail,barcode,unit,pcs,price_in from stock_product  where 1 GROUP By barcode ";
 $results = mysql_query($sql);
 while ($row = mysql_fetch_array( $results )) {
 
   $s++;
   if($s>1){  $states.=",";  }
-  $states.="{value:\"".str_ireplace("&#39;","'",$row[detail])."\",detail:\"$row[detail]\",unit:\"$row[unit]\",id:\"$row[barcode]\",pcs:\"$row[pcs]\",price_in:\"$row[price_in]\"}";
+  $states.="{value:\"".str_ireplace("&#39;","'",$row[detail])."\",detail:\"$row[detail]\",unit:\"$row[unit]\",id:\"$row[barcode]\",pcs:\"$row[pcs]\",price:\"$row[price_in]\"}";
 }
+
+
 $states.="";
 
 
@@ -534,7 +564,43 @@ $company.="";
 <script src="../../bootstrap/datepick/jquery-ui.js"></script>
 <script type="text/javascript">
 
-            $(function () {
+function upload_publish(){
+
+          var fd = new FormData();
+          var files = $('#fileupload')[0].files[0];
+          fd.append('file',files);
+      
+          fd.append('submit','fileupload_publish');
+        $.ajax({
+            url: 'mysql_egp.php?',
+            type: 'post',
+            data: fd,
+            //cache: false,
+            contentType: false,
+            processData: false,
+            success: function(response){
+                    alert(response);
+            },
+        });
+
+
+}
+
+       function imagespreview(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#blah')
+                        .attr('src', e.target.result);
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+            //input.src = new_i;
+        }
+
+$(function () {
 
 document.onkeydown = chkEvent 
 function chkEvent(e) {
@@ -555,7 +621,7 @@ function chkEvent(e) {
                       $("#barcode").val(ui.item.id);
                       //$("#pcs").val(ui.item.pcs);
                       $("#unit").val(ui.item.unit);
-                      $("#price").val(ui.item.price_in);
+                      $("#price").val(ui.item.price);
 
                       
                     }

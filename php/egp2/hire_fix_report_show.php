@@ -1,6 +1,6 @@
 <?
 session_start();
-include("../../php/connect.inc");
+include("../../php/connect.php");
 
 function mount($str){
 switch($str)
@@ -65,6 +65,7 @@ function return_data(id){
 
                 var obj = jQuery.parseJSON(result);      
                 $.each(obj, function(key, val) {
+                        
                     $("#dateday").val(val["date_convert"]);
                     $("#times").val(val["times"]);
                     $("#department").val(val["department"]);
@@ -79,12 +80,23 @@ function return_data(id){
 
                     if(val["date_recipt_convert"]){$("#date_recipt").val(val["date_recipt_convert"]);}
                     if(val["time_recipt"]!="00:00:00"){$("#time_recipt").val(val["time_recipt"]);}
-                    if(val["other_fix"]){$("#other_fix").val(val["other_fix"]);}
+                    if(val["other_fix"]){$("#other_fix").html(val["other_fix"]);}
                     if(val["officer_recipt"]){$("#officer_recipt").val(val["officer_recipt"]);}
                     if(val["officer_fix"]){$("#officer_fix").val(val["officer_fix"]);}
                     if(val["type_fix"]){$("#type_fix").val(val["type_fix"]);}
                     if(val["group_fix"]){$("#group_fix").val(val["group_fix"]);}
                     if(val["type_status_fix"]){$("#type_status_fix").val(val["type_status_fix"]);}
+
+                    if(val["date_return"]){$("#date_return").val(val["date_return"]);}
+                    if(val["type_status_return"]){$("#type_status_return").val(val["type_status_return"]);}
+                    if(val["other_fix"]){$("#other_return").html(val["other_return"]);}
+                    if(val["nobill_recipt"]){$("#nobill_recipt").val(val["nobill_recipt"]);}
+                    if(val["money_recipt"]){$("#money_recipt").val(val["money_recipt"]);}
+                    if(val["officer_fix"]){$("#officer_fix").val(val["officer_fix"]);}
+
+
+
+
 
                     $("#blah").append(val["blah"]);
                     $("#blah2").append(val["blah2"]);
@@ -94,7 +106,7 @@ function return_data(id){
                     // $('input').css({'border':'0px solid #e0e0e0'});
                     // $('select').css({'border':'0px solid #e0e0e0'});
                     $('input').attr('readonly', true);
-                    $('select').attr('readonly', true);
+                    $('select').attr('disabled', true);
                     $('textarea').attr('readonly', true);
                     
 
@@ -133,9 +145,9 @@ function dateFix(str){
         <select id="department" class="form-control">
         <?
         $sql = "SELECT * from department ";
-        $result = mysql_query($sql);
-        while ($row = mysql_fetch_assoc($result) ) {
-          echo "<option value='$row[code]'>$row[name]</option>";
+        $result = mysqli_query($con,$sql);
+        while ($row = mysqli_fetch_assoc($result) ) {
+          echo "<option value='$row[row_id]'>$row[name]</option>";
         }
         ?>
       </select>
@@ -155,8 +167,8 @@ function dateFix(str){
           <option value="0">อื่นๆ</option> -->
           <?
         $sql = "SELECT * from store_type ";
-        $result = mysql_query($sql);
-        while ($row = mysql_fetch_assoc($result) ) {
+        $result = mysqli_query($con,$sql);
+        while ($row = mysqli_fetch_assoc($result) ) {
           echo "<option value='$row[row_id]'>$row[detail]</option>";
         }
           ?>
@@ -169,6 +181,11 @@ function dateFix(str){
       </div> 
 
       </td>
+      <?
+      $sql = "SELECT type_status_fix,other_fix from hirefix WHERE row_id = '".$_GET["row_id"]."'";
+      list($type_status_fix,$other_fix) = Mysqli_fetch_row(Mysqli_Query($con,$sql));
+      if($other_fix){?>
+
       <tr><td>ผู้ส่งซ่อม</td><td colspan="3"><input type="text" id="officer" class="form-control" value="<?=$_SESSION['xfullname']?>"></td></tr>
       <tr><td colspan="4" style="color:#909090;">
         ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -180,8 +197,8 @@ function dateFix(str){
           <!-- <option value="A">กลุ่ม A</option><option value="B">กลุ่ม B</option><option value="C">กลุ่ม C</option><option value="D">กลุ่ม D</option> -->
           <?
           $sql="SELECT * FROM hirefix_type";
-          $result = mysql_query($sql);
-          while ($ht = mysql_fetch_assoc($result)) {
+          $result = mysqli_query($con,$sql);
+          while ($ht = mysqli_fetch_assoc($result)) {
             echo "<option value='$ht[row_id]'>$ht[type_name]</option>";
           }
           ?>
@@ -216,15 +233,15 @@ function dateFix(str){
       </td></tr>
 
       <?
-      $sql = "SELECT type_status_fix from hirefix WHERE row_id = '".$_GET["row_id"]."'";
-      list($type_status_fix) = Mysql_fetch_row(Mysql_Query($sql));
-      if($type_status_fix){?>
+      }
+      if($type_status_fix > 1){?>
       <tr><td colspan="4" style="color:#909090;">
         ------------------------------------------------------------------------------------------------------------------------------------------------
       </td></tr>
       <tr><td colspan="4"><li class="fa fa-gears"></li> สถานะงานซ่อม</td></tr>
       <tr><td>วันที่ส่งมอบ</td><td><input type="text" id="date_return" class="form-control" value="<?=date("d").' '.mount(date("m")).' '.(date("Y")+543);?>"></td><td style="text-align: right;">สถานะ</td><td>
                   <select class="form-control" id="type_status_return">
+                  <option value=''></option>
                   <option value='1'>ใช้งานปกติ</option>
                   <option  value='2'>ไม่สามารถซ่อมได้</option>
                   <option  value='3'>รอจำหน่าย</option>

@@ -123,6 +123,7 @@ function del_text_final(no){
       success: function(data)
         {
           alert(data);
+          window.close();
         }         
      });
 }

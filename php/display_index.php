@@ -86,6 +86,21 @@ return $str;
 
   <!-- Google Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+  <script type="text/javascript">
+    
+  function show_report(rd){
+        window.open("egp2/hire_fix_report_show.php?row_id="+rd,"_blank","toolbar=no,scrollbars=yes,resizable=yes,top=50px,left=50px,width=900,height=700");
+  }
+
+    function del_fix(rd,tl){
+        var r = confirm("ต้องการยกเลิกใบแจ้งซ่อม "+tl+" ใช่หรือไม่");
+        if(r==true){
+          $.ajax({type: "POST",url: "egp2/mysql_fix.php",data:"submit=del_fix&row_id="+rd });
+          location.reload();
+        }
+
+    }
+  </script>
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 
@@ -235,7 +250,8 @@ return $str;
                    echo   "</th>".
                      "<th>$fix[officer]</th>".
                      
-                     "<th style='background-color:".status_color($fix[type_status_fix]).";'>".status_txt($fix[status])."</th>";
+                     "<th style='background-color:".status_color($fix[type_status_fix]).";'>".status_txt($fix[status])." <li class='fa fa-search' style='color:red;cursor:pointer;' onclick=\"show_report('".$fix[row_id]."')\"></li></th>";
+
                     if($position=="Admin"){
                     echo "<th style='width:130px;'>".
                          "<button class='btn btn-success' onclick=\"window.location='egp2/hire_fix.php?row_id=".$fix[row_id]."'\"><li class='fa fa-edit'></li></button> ".

@@ -7,6 +7,12 @@ $numarabic = array("1","2","3","4","5","6","7","8","9","0");
 return str_replace($numthai,$numarabic,$str);
 }
 
+function commaa($str){
+  if($str>0 || $str>'0'){
+    return number_format($str);
+  }
+}
+
 function mount_full($str){
 switch($str)
 {
@@ -24,7 +30,7 @@ case "พฤศจิกายน": $str = "11"; break;
 case "ธันวาคม": $str = "12"; break;
 }
 return $str;
-}
+} 
 
   function remove_word($str){
   $word="0123456789.";
@@ -133,15 +139,24 @@ $product="";
 for($t=0;$t<count($_POST["num"]);$t++){
 
   //print $_POST["num"][$t];
-$product.=$_POST["num"][$t].".".$_POST["detail"][$t]." จำนวน ".$_POST["pcs"][$t]." ".$_POST["unit"][$t]."ๆละ ".$_POST["price"][$t]." บาท\n";
+$product.=$_POST["num"][$t].".".$_POST["detail"][$t]." จำนวน ".commaa($_POST["pcs"][$t])." ".$_POST["unit"][$t]."ๆละ ".commaa($_POST["price"][$t])." บาท\n";
+
+
+if($_POST["barcode"][$t]){
+   $barcode_random = $_POST["barcode"][$t];
+
+}else{
+   $barcode_random = date("ymdHis");
+}
 
 $strSQL = "INSERT INTO egp_product SET "; 
 $strSQL .="no = '".trim(str_replace("/","-",num_convertbric($_POST["no"])))."' ";
-$strSQL .=",store = 'in' ";
+$strSQL .=",store = 'out' ";
 $strSQL .=",group_type = '".$_POST["group_type"]."' ";
 $strSQL .=",supply_id = '".$_POST["supply_code"]."' ";
+$strSQL .=",department = '".$_POST["department"]."' ";
 $strSQL .=",row_num = '".$_POST["num"][$t]."' ";
-$strSQL .=",barcode = '".$_POST["barcode"][$t]."' ";
+$strSQL .=",barcode = '".$barcode_random."' ";
 $strSQL .=",detail = '".$_POST["detail"][$t]."' ";
 $strSQL .=",pcs = '".$_POST["pcs"][$t]."' ";
 $strSQL .=",unit = '".$_POST["unit"][$t]."' ";
@@ -171,9 +186,33 @@ $strSQL .=",supply_addres = '".$_POST["supply_addres"]."' ";
 $strSQL .=",supply_phone = '".$_POST["supply_phone"]."' ";
 $strSQL .=",supply_tax = '".$_POST["supply_tax"]."' ";
 $strSQL .="WHERE row_id = '1' ";
-echo $strSQL;
 $objQuery = mysql_query($strSQL)or die(mysql_error());
 
+
+$strSQL = "INSERT INTO  tbl_import2_head SET "; 
+// $strSQL .="no = '".trim(str_replace("/","-",num_convertbric($_POST["no"])))."' ";
+// $strSQL .=",store = 'out' ";
+// $strSQL .=",group_type = '".$_POST["group_type"]."' ";
+// $strSQL .=",supply_id = '".$_POST["supply_code"]."' ";
+// $strSQL .=",department = '".$_POST["department"]."' ";
+// $strSQL .=",row_num = '".$_POST["num"][$t]."' ";
+// $strSQL .=",barcode = '".$barcode_random."' ";
+// $strSQL .=",detail = '".$_POST["detail"][$t]."' ";
+// $strSQL .=",pcs = '".$_POST["pcs"][$t]."' ";
+// $strSQL .=",unit = '".$_POST["unit"][$t]."' ";
+// $strSQL .=",price = '".$_POST["price"][$t]."' ";
+// $strSQL .=",total = '".$_POST["total"][$t]."' ";
+// $objQuery = mysql_query($strSQL)or die(mysql_error()); 
+
+$strSQL .="nobill_location   =  '".$_POST["no"]."' ";
+$strSQL .=",dateday = '".date_return($_POST["dateday1"])."'";
+$strSQL .=",total_money = '".num_convertbric(str_ireplace(",","",$_POST["total_bath"]))."' ";
+$strSQL .=",company = '".$_POST["supply_code"]."'";
+//$strSQL .=",nobill_recipt = nobill(bill)";
+$strSQL .=",type_hire = '".$_POST["group_type"]."' ";
+$strSQL .=",department =  '".$_POST["department"]."' ";
+$strSQL .=",daterecipt = '".date_return($_POST["dateday2"])."' ";
+$objQuery = mysql_query($strSQL)or die(mysql_error()); 
 
 
 echo ("<script> window.open('egp.php?')</script>");
@@ -199,7 +238,7 @@ echo "</table>";
 
 }else if($_POST["submit"]=="return_product_egp"){
 
-  $strSQL = "SELECT * FROM egp_product WHERE no = '".trim(str_replace("/","-",num_convertbric($_POST["no"])))."' ";
+  $strSQL = "SELECT * FROM egp_product WHERE no = '".trim(str_replace("/","-",num_convertbric($_POST["no"])))."' AND store = 'out' ";
   $objQuery = mysql_query($strSQL) or die (mysql_error());
   $intNumField = mysql_num_fields($objQuery);
   $resultArray = array();
@@ -216,6 +255,30 @@ echo "</table>";
   //mysql_close($Conn);
   
   echo json_encode($resultArray);
+
+}else if($_POST["submit"]=="fileupload_publish"){
+
+function password_generate($chars) 
+{
+  $data = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcefghijklmnopqrstuvwxyz';
+  return substr(str_shuffle($data), 0, $chars);
+}
+  $num = password_generate(4);
+
+
+   if (move_uploaded_file($_FILES["file"]["tmp_name"], "../../images/publish".$num.".jpg")) {
+    chmod("../../images/publish.jpg",0777);
+      print "Uploaded successfully!";
+
+      $strSQL = "UPDATE egp_title SET "; 
+        $strSQL .="publish = 'publish".$num.".jpg' ";
+        $strSQL .="WHERE row_id = '1' ";
+        $objQuery = mysql_query($strSQL)or die(mysql_error());
+      
+   } else {
+      print "Upload failed!";
+   }
+
 
 }
 ?>
